@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = RallyAPI::VERSION
   s.authors     = ["Dave Smith"]
   s.email       = ["dsmith@rallydev.com"]
-  s.homepage    = "http://developer.rallydev.com/help"
+  s.homepage    = "https://github.com/RallyTools/RallyRestToolkitForRuby"
   s.summary     = "A wrapper for the Rally Web Services API using json"
   s.description = "API wrapper for Rally's JSON REST web services api"
 
