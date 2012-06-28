@@ -1,0 +1,18 @@
+#RallyAPIcredentials should not be checked in - it should be included by anyone who wants to run tests
+RallyAPIcredentials*
+
+#.ideas is from RubyMine
+.idea
+
+#code coverage reports from simplecov
+coverage/
+
+#skip Gemfile.lock - should not be checked in for gems
+*.lock
+
+.DS_Store
+doc
+rdoc
+pkg
+*.gem
+scratchpad.rb
