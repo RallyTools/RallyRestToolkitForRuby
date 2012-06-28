@@ -1,0 +1,25 @@
+# -*- encoding: utf-8 -*-
+$:.push File.expand_path("../lib", __FILE__)
+require "rally_api/version"
+
+Gem::Specification.new do |s|
+  s.name        = "rally_api"
+  s.version     = RallyAPI::VERSION
+  s.authors     = ["Dave Smith"]
+  s.email       = ["dsmith@rallydev.com"]
+  s.homepage    = "http://developer.rallydev.com/help"
+  s.summary     = "A wrapper for the Rally Web Services API using json"
+  s.description = "API wrapper for Rally's JSON REST web services api"
+
+  s.rubyforge_project = "rally_api"
+
+  s.has_rdoc         = false
+
+  s.add_dependency('rest-client', '>= 1.6.7')
+
+  #s.files         = `git ls-files`.split("\n")
+  s.files = %w(README.rdoc Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
+  #s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  #s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.require_paths = ["lib"]
+end
