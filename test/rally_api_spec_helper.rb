@@ -6,6 +6,18 @@ end
 require 'yaml'
 require_relative "../lib/rally_api"
 
+
+# --- For spec helper - include a file named RallyAPIcredentials.txt in this directory and put this in it
+#     put in your URL, user, password and workspace/project and the tests will run against those enpoints when needed
+#     why no mocking?  I dont' always trust we get what we want from the wsapi, this helps get some confidence things
+#     really are working as they should
+#RallyURL:  https://trial.rallydev.com/slm
+#Username:  user@company.com
+#Password:  apassword
+#Workspace: Workspace Name
+#Project:   Project Name
+#Debug:     false
+
 module RallyAPISpecHelper
   path = ""
   if (Dir.pwd.include?("test"))
