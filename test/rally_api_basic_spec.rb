@@ -33,4 +33,37 @@ describe "Rally Json API" do
     RallyAPI::RALLY_REF_FIELDS.include?("WorkProduct").should == true
   end
 
+  it "should take a logger on create" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP
+    my_logger = double("logger")
+    my_logger.should_receive(:debug).at_least(:twice)
+    rally_config[:logger] = my_logger
+    rally_config[:debug]  = true
+    test_rally = RallyAPI::RallyRestJson.new(rally_config)
+  end
+
+  it "should turn off logger" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP
+    my_logger = double("logger")
+    my_logger.should_not_receive(:debug)
+    rally_config[:logger] = my_logger
+    rally_config[:debug]  = false
+    test_rally = RallyAPI::RallyRestJson.new(rally_config)
+  end
+
+  it "should turn on logger discretely" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP
+    my_logger = double("logger")
+    my_logger.should_receive(:debug).exactly(2).times
+    rally_config[:logger] = my_logger
+    rally_config[:debug]  = false
+    test_rally = RallyAPI::RallyRestJson.new(rally_config)
+    test_rally.debug_logging_on
+    test_rally.find do |q|
+      q.type = :defect
+      q.limit = 200
+      q.query_string = "(ObjectID < 1)"
+    end
+  end
+
 end

@@ -18,19 +18,12 @@ require_relative "rally_query_result"
 #
 #   ===Getting Started
 #   RallyAPI::RallyRestJson is the starting point for working in Ruby with Rally's REST WSAPI
-#
 #   config = {:base_url => "https://rally1.rallydev.com/slm"}
-#
 #   config[:username]   = "user@company.com"
-#
 #   config[:password]   = "password"
-#
 #   config[:workspace]  = "Workspace Name"
-#
 #   config[:project]    = "Project Name"
-#
 #   config[:headers]    = headers #from RallyAPI::CustomHttpHeader.new()
-#
 #   @rally = RallyAPI::RallyRestJson.new(config)
 
 
@@ -55,7 +48,7 @@ module RallyAPI
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
     attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info, :retries
-    attr_accessor :rally_rest_api_compat
+    attr_accessor :rally_rest_api_compat, :logger
 
     attr_reader   :rally_objects
 
@@ -71,12 +64,12 @@ module RallyAPI
       @retries              = args[:retries] || 0
       @rally_rest_api_compat  = args[:rally_rest_api_compat] || false
 
-      @low_debug = args[:debug] || false
+      @low_debug = args[:debug]  || false
+      @logger    = args[:logger] || nil    #assumes this is an instance of Logger
 
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
-      if @retries > 0
-        @rally_connection.retries = @retries
-      end
+      @rally_connection.logger  = @logger unless @logger.nil?
+      @rally_connection.retries = @retries if @retries > 0
 
       @rally_objects = { :typedefinition => "TypeDefinition" }
       cache_rally_objects()
@@ -92,6 +85,16 @@ module RallyAPI
       end
 
       self
+    end
+
+    def debug_logging_on
+      @low_debug = true
+      @rally_connection.low_debug = true
+    end
+
+    def debug_logging_off
+      @low_debug = false
+      @rally_connection.low_debug = false
     end
 
     def find_workspace(workspace_name)

@@ -15,11 +15,13 @@ module RallyAPI
 
     DEFAULT_PAGE_SIZE = 200
 
-    attr_accessor :rally_headers, :retries, :retry_list
+    attr_accessor :rally_headers, :retries, :retry_list, :low_debug, :logger
 
     def initialize(headers, low_debug, proxy_info)
       @rally_headers = headers
       @low_debug = low_debug
+      @logger = nil
+
       @retries = 0
       @retry_list = {}
 
@@ -36,7 +38,7 @@ module RallyAPI
     def read_object(url, args, params = nil)
       args[:method] = :get
       result = send_json_request(url, args, params)
-      puts result if @low_debug
+      log_info(result) if @low_debug
       rally_type = result.keys[0]
       result[rally_type]
     end
@@ -45,9 +47,9 @@ module RallyAPI
       args[:method] = :post
       text_json = rally_object.to_json
       args[:payload] = text_json
-      puts "payload json: #{text_json}" if @low_debug
+      log_info("create - payload json: #{text_json}") if @low_debug
       result = send_json_request(url, args)
-      puts result if @low_debug
+      log_info("create - result: #{result}") if @low_debug
       result["CreateResult"]["Object"]
     end
 
@@ -55,9 +57,9 @@ module RallyAPI
       args[:method] = :post
       text_json = rally_fields.to_json
       args[:payload] = text_json
-      puts "payload json: #{text_json}" if @low_debug
+      log_info("update payload json: #{text_json}") if @low_debug
       result = send_json_request(url, args)
-      puts result if @low_debug
+      log_info("update - result: #{result}") if @low_debug
       result["OperationResult"]
     end
 
@@ -72,7 +74,7 @@ module RallyAPI
     def delete_object(url,args)
       args[:method] = :delete
       result = send_json_request(url,args)
-      puts result if @low_debug
+      log_info("delete result - #{result}") if @low_debug
       result["OperationResult"]
     end
 
@@ -160,11 +162,11 @@ module RallyAPI
 
       begin
         req = RestClient::Request.new(request_args)
-        puts req.url if @low_debug
+        log_info(req.url) if @low_debug
         response = req.execute
       rescue => ex
         msg =  "Rally Rest Json: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
-        puts msg
+        log_info(msg)
         if !@retry_list.has_key?(req.url)
           @retry_list[req.url] = 0
         end
@@ -175,13 +177,17 @@ module RallyAPI
         raise StandardError, msg
       end
       @retry_list.delete(req.url)
-      puts response if @low_debug
+      log_info(response) if @low_debug
       json_obj = JSON.parse(response.body)   #todo handle null post error
       errs = check_for_errors(json_obj)
       raise StandardError, "\nError on request - #{url} - \n#{errs}" if errs[:errors].length > 0
       json_obj
     end
 
+    def log_info(message)
+      puts message
+      @logger.debug(message) unless @logger.nil?
+    end
 
     def check_for_errors(result)
       errors = []
