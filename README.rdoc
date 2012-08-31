@@ -106,10 +106,9 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
     story1.rank_above(story2)   #in a drag and drop workspace move story1 relative to story2
     story1.rank_below(story2)
 
-#== License/Meta
-#Released under the MIT License: http://www.opensource.org/licenses/mit-license.php
-#Copyright (c) 2002-2011 Rally Software Development Corp. All Rights Reserved.
-#Your use of this Software is governed by the terms and conditions
-#of the applicable Subscription Agreement between your company and
-#Rally Software Development Corp.
+== License/Meta
+Released under the MIT License: http://www.opensource.org/licenses/mit-license.php
+Copyright (c) 2002-2011 Rally Software Development Corp. All Rights Reserved.
+Your use of this Software is governed by the terms and conditions of the applicable Subscription Agreement
+between your company and Rally Software Development Corp.
 

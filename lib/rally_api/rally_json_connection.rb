@@ -139,7 +139,6 @@ module RallyAPI
       end
     end
 
-    #todo support proxy stuff
     def send_json_request(url, args, url_params = nil)
       request_args = {}
       request_args[:url]      = url
