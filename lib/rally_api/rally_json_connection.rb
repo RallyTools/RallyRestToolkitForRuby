@@ -185,7 +185,7 @@ module RallyAPI
     end
 
     def log_info(message)
-      puts message
+      puts message if @logger.nil?
       @logger.debug(message) unless @logger.nil?
     end
 
