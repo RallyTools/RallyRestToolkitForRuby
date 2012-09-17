@@ -44,7 +44,7 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.30"
+    DEFAULT_WSAPI_VERSION = "1.37"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
     attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info, :retries
@@ -351,17 +351,22 @@ module RallyAPI
     def cache_rally_objects()
       type_defs_query = RallyQuery.new()
       type_defs_query.type = :typedefinition
-      type_defs_query.fetch = "Name"
+      type_defs_query.fetch = "Name,Parent,TypePath"
 
       type_defs = find(type_defs_query)
       type_defs.each do |td|
         type_sym = td.Name.downcase.gsub(" ", "").to_sym
-        @rally_objects[type_sym] = td.Name
+        url_path = td.TypePath.nil? ? td.Name : td.TypePath
+        @rally_objects[type_sym] = url_path
+
+        parent_type = td.Parent
+        if !parent_type.nil? && (@rally_objects[parent_type.Name].nil?)
+          url_path = parent_type.TypePath.nil? ? parent_type.Name : parent_type.TypePath
+          @rally_objects[parent_type.Name.downcase.gsub(" ", "").to_sym] = url_path
+        end
       end
 
       #some convenience keys to help people - someday we'll fix the api and make HR called story
-      @rally_objects[:artifact]               = "Artifact"
-      @rally_objects[:persistableobject]      = "Persistable Object"
       @rally_objects[:useriterationcapacity]  = "User Iteration Capacity"
       @rally_objects[:userpermission]         = "User Permission"
       @rally_objects[:story]                  = "Hierarchical Requirement"

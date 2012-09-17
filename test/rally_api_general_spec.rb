@@ -70,6 +70,42 @@ describe "Rally API specific artifact tests" do
     found.should be_true
   end
 
+  it "should be able to interact with PIs 1.37" do
+    pi_types = @rally.find do |q|
+      q.type = :typedefinition
+      q.query_string = '(Parent.Name = "Portfolio Item")'
+      q.limit = 10
+      q.fetch = "Name"
+    end
 
+    name_to_try = nil
+    pi_types.each do |typ|
+      next if typ.Name == "Portfolio Item"
+      name_to_try = typ.Name
+    end
+
+    type_to_try = name_to_try.downcase.gsub(" ", "").to_sym
+    fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}
+    new_pi = @rally.create(type_to_try, fields)
+    new_pi.should_not be_nil
+    new_pi.Name.should == fields[:Name]
+
+    pi = @rally.read(type_to_try, new_pi["ObjectID"])
+    pi.should_not be_nil
+    pi["Name"].should == fields[:Name]
+
+    pi_list = @rally.find do |q|
+      q.type = type_to_try
+      q.limit = 1000
+      q.order = "CreationDate Desc"
+      q.fetch = "Name"
+    end
+
+    found = false
+    pi_list.each do |pi|
+      found = true if pi.Name == fields[:Name] && pi.ObjectID == new_pi.ObjecID
+    end
+    found.should == true
+  end
 
 end

@@ -49,5 +49,24 @@ describe "Rally Json Create Tests" do
     lambda { new_de.read }.should raise_exception(/Error on request -/)
   end
 
+  it "should be able to create a PI post 1.37" do
+    pi_types = @rally.find do |q|
+      q.type = :typedefinition
+      q.query_string = '(Parent.Name = "Portfolio Item")'
+      q.limit = 10
+      q.fetch = "Name"
+    end
+
+    name_to_try = nil
+    pi_types.each do |typ|
+      next if typ.Name == "Portfolio Item"
+      name_to_try = typ.Name
+    end
+
+    fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}
+    new_pi = @rally.create(name_to_try.downcase.gsub(" ", "").to_sym, fields)
+    new_pi.should_not be_nil
+    new_pi.Name.should == fields[:Name]
+  end
 
 end
