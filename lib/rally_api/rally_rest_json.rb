@@ -68,6 +68,7 @@ module RallyAPI
       @logger    = args[:logger] || nil    #assumes this is an instance of Logger
 
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
+      @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
       @rally_connection.retries = @retries if @retries > 0
 
@@ -128,9 +129,10 @@ module RallyAPI
     end
 
     def user
-      args = {:user => @rally_user, :password => @rally_password}
-      json_response = @rally_connection.read_object(make_get_url(@rally_objects[:user]), args)
-      RallyObject.new(self, json_response)
+      args = { :method => :get }
+      json_response = @rally_connection.send_request(make_get_url(@rally_objects[:user]), args)
+      rally_type = json_response.keys[0]
+      RallyObject.new(self, json_response[rally_type])
     end
 
 
@@ -142,29 +144,38 @@ module RallyAPI
         fields["Project"] = @rally_default_project._ref unless @rally_default_project.nil?
       end
 
-      args = {:user => @rally_user, :password => @rally_password }
       object2create = { rally_type => make_ref_fields(fields) }
-      json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
-      RallyObject.new(self, json_response).read()
+      args = { :method => :post, :payload => object2create }
+      #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
+      json_response = @rally_connection.send_request(make_create_url(rally_type), args, object2create)
+      #todo - check for warnings
+      RallyObject.new(self, json_response["CreateResult"]["Object"]).read()
     end
 
 
     def read(type, obj_id, params = nil)
       rally_type = check_type(type)
       ref = check_id(rally_type, obj_id)
-      args = {:user => @rally_user, :password => @rally_password}
-      json_response = @rally_connection.read_object(ref, args, params)
-      RallyObject.new(self, json_response)
+      args = { :method => :get }
+      #json_response = @rally_connection.read_object(ref, args, params)
+      json_response = @rally_connection.send_request(ref, args, params)
+      rally_type = json_response.keys[0]
+      RallyObject.new(self, json_response[rally_type])
     end
 
     def delete(ref_to_delete)
-      args = {:user => @rally_user, :password => @rally_password}
-      @rally_connection.delete_object(ref_to_delete, args)
+      args = { :method => :delete }
+      #json_response = @rally_connection.delete_object(ref_to_delete, args)
+      json_response = @rally_connection.send_request(ref_to_delete, args)
+      json_response["OperationResult"]
     end
 
     def reread(json_object, params = nil)
-      args = {:user => @rally_user, :password => @rally_password}
-      @rally_connection.read_object(json_object["_ref"], args, params)
+      args = { :method => :get }
+      #json_response = @rally_connection.read_object(json_object["_ref"], args, params)
+      json_response = @rally_connection.send_request(json_object["_ref"], args, params)
+      rally_type = json_response.keys[0]
+      json_response[rally_type]
     end
 
 
@@ -172,8 +183,10 @@ module RallyAPI
       rally_type = check_type(type)
       ref = check_id(rally_type, obj_id)
       json_update = { rally_type => make_ref_fields(fields) }
-      args = {:user => @rally_user, :password => @rally_password}
-      @rally_connection.update_object(ref, args, json_update)
+      args = { :method => :post, :payload => json_update }
+      #json_response = @rally_connection.update_object(ref, args, json_update)
+      json_response = @rally_connection.send_request(ref, args)
+      #todo check for warnings on json_response["OperationResult"]
       RallyObject.new(self, reread({"_ref" => ref}))
     end
 
@@ -228,9 +241,10 @@ module RallyAPI
       params[:rankAbove] = short_ref(relative_ref)
       params[:fetch] = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
-      args = {:user => @rally_user, :password => @rally_password}
-      update = @rally_connection.put_object(ref, args, params, json_update)
-      RallyObject.new(self, update["Object"])
+      args = { :method => :put, :payload => json_update }
+      #update = @rally_connection.put_object(ref, args, params, json_update)
+      update = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, update["OperationResult"]["Object"])
     end
 
     #ref to object.js? rankBelow=%2Fhierarchicalrequirement%2F4624552599
@@ -240,11 +254,13 @@ module RallyAPI
       params[:rankBelow] = short_ref(relative_ref)
       params[:fetch] = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
-      args = {:user => @rally_user, :password => @rally_password}
-      update = @rally_connection.put_object(ref, args, params, json_update)
-      RallyObject.new(self, update["Object"])
+      args = { :method => :put, :payload => json_update }
+      #update = @rally_connection.put_object(ref, args, params, json_update)
+      update = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, update["OperationResult"]["Object"])
     end
 
+    #todo - check support for portfolio item fields
     def allowed_values(type, field)
       if type.class == Symbol
         query_type = @rally_objects[type]

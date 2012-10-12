@@ -1,6 +1,11 @@
 require 'simplecov'
+
+#clear simplecov filters so this works in Rubymine
+SimpleCov.adapters.delete(:root_filter)
+SimpleCov.filters.clear
+
 SimpleCov.start do
-  add_filter "/test/"
+  add_filter '/test/'
 end
 
 require 'yaml'

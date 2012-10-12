@@ -1,4 +1,4 @@
-require 'rest_client'
+require "httpclient"
 require 'json'
 
 # :stopdoc:
@@ -15,70 +15,30 @@ module RallyAPI
 
     DEFAULT_PAGE_SIZE = 200
 
-    attr_accessor :rally_headers, :retries, :retry_list, :low_debug, :logger
+    attr_accessor :rally_headers, :low_debug, :logger
 
     def initialize(headers, low_debug, proxy_info)
       @rally_headers = headers
       @low_debug = low_debug
       @logger = nil
 
-      @retries = 0
-      @retry_list = {}
+      @rally_http_client = HTTPClient.new
+      @rally_http_client.receive_timeout = 300
+      @rally_http_client.send_timeout    = 300
+      @rally_http_client.transparent_gzip_decompression = true
 
-      if (!ENV["http_proxy"].nil?) && (proxy_info.nil?)
-        RestClient.proxy = ENV['http_proxy']
+      #passed in proxy setup overrides env level proxy
+      env_proxy = ENV["http_proxy"]
+      if (!env_proxy.nil?) && (proxy_info.nil?)
+        @rally_http_client.proxy = env_proxy
       end
-
-      if !proxy_info.nil?
-        RestClient.proxy = proxy_info
-      end
-
+      @rally_http_client.proxy = proxy_info unless !proxy_info.nil?
     end
 
-    def read_object(url, args, params = nil)
-      args[:method] = :get
-      result = send_json_request(url, args, params)
-      log_info(result) if @low_debug
-      rally_type = result.keys[0]
-      result[rally_type]
+    def set_client_user(base_url, user, password)
+      @rally_http_client.set_basic_auth(base_url, user, password)
     end
 
-    def create_object(url, args, rally_object)
-      args[:method] = :post
-      text_json = rally_object.to_json
-      args[:payload] = text_json
-      log_info("create - payload json: #{text_json}") if @low_debug
-      result = send_json_request(url, args)
-      log_info("create - result: #{result}") if @low_debug
-      result["CreateResult"]["Object"]
-    end
-
-    def update_object(url, args, rally_fields)
-      args[:method] = :post
-      text_json = rally_fields.to_json
-      args[:payload] = text_json
-      log_info("update payload json: #{text_json}") if @low_debug
-      result = send_json_request(url, args)
-      log_info("update - result: #{result}") if @low_debug
-      result["OperationResult"]
-    end
-
-    def put_object(url, args, put_params, rally_fields)
-      args[:method] = :put
-      text_json = rally_fields.to_json
-      args[:payload] = text_json
-      result = send_json_request(url, args, put_params)
-      result["OperationResult"]
-    end
-
-    def delete_object(url,args)
-      args[:method] = :delete
-      result = send_json_request(url,args)
-      log_info("delete result - #{result}") if @low_debug
-      result["OperationResult"]
-    end
-
-    #---------------------------------------------
     def get_all_json_results(url, args, query_params, limit = 99999)
       all_results = []
       args[:method] = :get
@@ -87,7 +47,8 @@ module RallyAPI
       params[:start]    = 1
       params = params.merge(query_params)
 
-      query_result = send_json_request(url, args, params)
+      #query_result = send_json_request(url, args, params)
+      query_result = send_request(url, args, params)
       all_results.concat(query_result["QueryResult"]["Results"])
       totals = query_result["QueryResult"]["TotalResultCount"]
 
@@ -108,6 +69,36 @@ module RallyAPI
 
       query_result["QueryResult"]["Results"] = all_results
       query_result
+    end
+
+    #args should have :method
+    def send_request(url, args, url_params = {})
+      method = args[:method]
+      req_args = { :query => url_params }
+
+      req_headers = @rally_headers.headers
+      if (args[:method] == :post) || (args[:method] == :put)
+        req_headers["Content-Type"] = "application/json"
+        req_headers["Accept"] = "application/json"
+        text_json =args[:payload].to_json
+        req_args[:body] = text_json
+      end
+      req_args[:header] = req_headers
+
+      begin
+        log_info("Rally API calling #{method} - #{url} with #{req_args}") if @low_debug
+        response = @rally_http_client.request(method, url, req_args)
+      rescue Exception => ex
+        msg =  "Rally Rest Json: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
+        log_info(msg)
+        raise StandardError, msg
+      end
+
+      log_info("RallyAPI response was - #{response.inspect}") if @low_debug
+      json_obj = JSON.parse(response.body)   #todo handle null post error
+      errs = check_for_errors(json_obj)
+      raise StandardError, "\nError on request - #{url} - \n#{errs}" if errs[:errors].length > 0
+      json_obj
     end
 
     private
@@ -132,55 +123,11 @@ module RallyAPI
       Thread.new do
         thread_results = []
         request_array.each do |req|
-            page_res = send_json_request(req[:url], req[:args], req[:params])
+            page_res = send_request(req[:url], req[:args], req[:params])
             thread_results.push({:page_num => req[:page_num], :results => page_res})
         end
         thread_results
       end
-    end
-
-    def send_json_request(url, args, url_params = nil)
-      request_args = {}
-      request_args[:url]      = url
-      request_args[:user]     = args[:user]
-      request_args[:password] = args[:password]
-      request_args[:method]   = args[:method]
-      request_args[:timeout]  = 120
-      request_args[:open_timeout] = 120
-
-      r_headers = @rally_headers.headers
-      r_headers[:params] = url_params
-
-      if (args[:method] == :post) || (args[:method] == :put)
-        r_headers[:content_type] = :json
-        r_headers[:accept] = :json
-        request_args[:payload] = args[:payload]
-      end
-
-      request_args[:headers] = r_headers
-
-      begin
-        req = RestClient::Request.new(request_args)
-        log_info(req.url) if @low_debug
-        response = req.execute
-      rescue => ex
-        msg =  "Rally Rest Json: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
-        log_info(msg)
-        if !@retry_list.has_key?(req.url)
-          @retry_list[req.url] = 0
-        end
-        if (@retries > 0) && (retry_list[req.url] < @retries)
-          @retry_list[req.url] += 1
-          retry
-        end
-        raise StandardError, msg
-      end
-      @retry_list.delete(req.url)
-      log_info(response) if @low_debug
-      json_obj = JSON.parse(response.body)   #todo handle null post error
-      errs = check_for_errors(json_obj)
-      raise StandardError, "\nError on request - #{url} - \n#{errs}" if errs[:errors].length > 0
-      json_obj
     end
 
     def log_info(message)

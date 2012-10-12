@@ -72,7 +72,7 @@ module RallyAPI
     def method_missing(sym, *args)
       ret_val = get_val(sym.to_s)
       if @rally_rest.rally_rest_api_compat && ret_val.nil?
-        ret_val = get_val(camel_case_word(:sym))
+        ret_val = get_val(camel_case_word(sym))
       end
       ret_val
     end
