@@ -202,6 +202,25 @@ describe "Rally Query Tests" do
     query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
   end
 
+  it "should change threads safely" do
+    @rally.adjust_find_threads(1)
+    @rally.rally_connection.find_threads.should == 1
+
+    @rally.adjust_find_threads(2)
+    @rally.rally_connection.find_threads.should == 2
+
+    @rally.adjust_find_threads(-1)
+    @rally.rally_connection.find_threads.should == 1
+
+    @rally.adjust_find_threads(10)
+    @rally.rally_connection.find_threads.should == 4
+
+    @rally.adjust_find_threads("abc")
+    @rally.rally_connection.find_threads.should == 4
+
+    @rally.rally_connection.set_find_threads
+    @rally.rally_connection.find_threads.should == 2
+  end
 
 
 end

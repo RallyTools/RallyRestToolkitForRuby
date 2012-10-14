@@ -47,10 +47,10 @@ module RallyAPI
     DEFAULT_WSAPI_VERSION = "1.37"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
-    attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info, :retries
+    attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info
     attr_accessor :rally_rest_api_compat, :logger
 
-    attr_reader   :rally_objects
+    attr_reader   :rally_connection, :rally_objects
 
     def initialize(args)
       @rally_url            = args[:base_url] || "https://rally1.rallydev.com/slm"
@@ -61,7 +61,7 @@ module RallyAPI
       @wsapi_version        = args[:version]  || DEFAULT_WSAPI_VERSION
       @rally_headers        = args[:headers]  || CustomHttpHeader.new
       @proxy_info           = args[:proxy]
-      @retries              = args[:retries] || 0
+
       @rally_rest_api_compat  = args[:rally_rest_api_compat] || false
 
       @low_debug = args[:debug]  || false
@@ -70,7 +70,6 @@ module RallyAPI
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
-      @rally_connection.retries = @retries if @retries > 0
 
       @rally_objects = { :typedefinition => "TypeDefinition" }
       cache_rally_objects()
@@ -233,6 +232,10 @@ module RallyAPI
       RallyQueryResult.new(self, json_response)
     end
 
+    def adjust_find_threads(num_threads)
+      @rally_connection.set_find_threads(num_threads)
+    end
+
     #rankAbove=%2Fhierarchicalrequirement%2F4624552599
     #{"hierarchicalrequirement":{"_ref":"https://rally1.rallydev.com/slm/webservice/1.27/hierarchicalrequirement/4616818613.js"}}
     def rank_above(ref_to_rank, relative_ref)
@@ -255,7 +258,17 @@ module RallyAPI
       params[:fetch] = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
-      #update = @rally_connection.put_object(ref, args, params, json_update)
+      update = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, update["OperationResult"]["Object"])
+    end
+
+    def rank_to(ref_to_rank, location = "TOP")
+      ref = ref_to_rank
+      params = {}
+      params[:rankTo] = location
+      params[:fetch]  = "true"
+      json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
+      args = { :method => :put, :payload => json_update }
       update = @rally_connection.send_request(ref, args, params)
       RallyObject.new(self, update["OperationResult"]["Object"])
     end

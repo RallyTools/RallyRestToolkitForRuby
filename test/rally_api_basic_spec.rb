@@ -67,4 +67,14 @@ describe "Rally Json API" do
     end
   end
 
+  it "should let a client set the SSL verfiy mode" do
+    verify_on =  OpenSSL::SSL::VERIFY_PEER
+    verify_off = OpenSSL::SSL::VERIFY_NONE
+    @rally.rally_connection.set_ssl_verify_mode(verify_on)
+    @rally.rally_connection.rally_http_client.ssl_config.verify_mode.should == verify_on
+
+    @rally.rally_connection.set_ssl_verify_mode(verify_off)
+    @rally.rally_connection.rally_http_client.ssl_config.verify_mode.should == verify_off
+  end
+
 end

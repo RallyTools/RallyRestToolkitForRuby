@@ -54,11 +54,23 @@ module RallyAPI
     end
 
     def rank_above(relative_rally_object)
-      @rally_rest.rank_above(@rally_object["_ref"],relative_rally_object["_ref"])
+      @rally_object = @rally_rest.rank_above(@rally_object["_ref"],relative_rally_object["_ref"]).rally_object
+      self
     end
 
     def rank_below(relative_rally_object)
-      @rally_rest.rank_below(@rally_object["_ref"],relative_rally_object["_ref"])
+      @rally_object = @rally_rest.rank_below(@rally_object["_ref"],relative_rally_object["_ref"]).rally_object
+      self
+    end
+
+    def rank_to_bottom
+      @rally_object = @rally_rest.rank_to(@rally_object["_ref"], "BOTTOM").rally_object
+      self
+    end
+
+    def rank_to_top
+      @rally_object = @rally_rest.rank_to(@rally_object["_ref"], "TOP").rally_object
+      self
     end
 
     def delete()

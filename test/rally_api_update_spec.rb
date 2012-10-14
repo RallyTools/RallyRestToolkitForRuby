@@ -60,4 +60,28 @@ describe "Rally Json Update Tests" do
     new_rank2.should be > story1_rank
   end
 
+  it "should rank to bottom and top" do
+    @test_story.rank_to_top
+    top_stories = @rally.find do |q|
+      q.type = :story
+      q.order = "Rank Asc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+    top_story = top_stories[0]
+    top_story["ObjectID"].should == @test_story["ObjectID"]
+
+    @test_story.rank_to_bottom
+    bottom_stories = @rally.find do |q|
+      q.type = :story
+      q.order = "Rank Desc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+    bottom_story = bottom_stories[0]
+    bottom_story["ObjectID"].should == @test_story["ObjectID"]
+  end
+
 end

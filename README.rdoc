@@ -18,6 +18,9 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
     headers.vendor = "MyCompany"
     headers.version = "1.0"
 
+    #or one line custom header
+    headers = RallyAPI::CustomHttpHeader.new({:vendor => "Vendor", :name => "Custom Name", :version => "1.0"})
+
     config = {:base_url => "https://rally1.rallydev.com/slm"}
     config[:username]   = "user@company.com"
     config[:password]   = "password"
@@ -105,6 +108,8 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
     #re-ranking:  rank_above and rank_below
     story1.rank_above(story2)   #in a drag and drop workspace move story1 relative to story2
     story1.rank_below(story2)
+    story1.rank_to_bottom
+    story1.rank_to_top
 
 == License/Meta
 Released under the MIT License: http://www.opensource.org/licenses/mit-license.php

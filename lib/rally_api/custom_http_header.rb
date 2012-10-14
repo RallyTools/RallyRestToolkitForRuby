@@ -5,6 +5,10 @@
 
 require_relative "version"
 
+#custom headers help Rally identify the integration you have written
+#  You can make custom headers by:
+#  ch = RallyAPI::CustomHttpHeader.new({:name => "CustomRoobyTool", :vendor => "acme inc", :version => "1.0"})
+#  or by calling with no hash in the arguments and setting ch.name, ch.vendor, and ch.version
 module RallyAPI
 
   class CustomHttpHeader
@@ -14,11 +18,17 @@ module RallyAPI
     HTTP_HEADER_FIELDS = [:name, :vendor, :version, :library, :platform, :os]
     HTTP_HEADER_PREFIX = 'X-RallyIntegration'
 
-    def initialize
+    def initialize(custom_vals = {})
       @os = RUBY_PLATFORM
       @platform = "Ruby #{RUBY_VERSION}"
-      @library = "RallyRestJson version #{VERSION}"
+      @library = "RallyRestJson version #{RallyAPI::VERSION}"
       @name = "RallyRestJson"
+
+      if custom_vals.keys.length > 0
+        @name    = custom_vals[:name]
+        @version = custom_vals[:version]
+        @vendor  = custom_vals[:vendor]
+      end
     end
 
     def headers

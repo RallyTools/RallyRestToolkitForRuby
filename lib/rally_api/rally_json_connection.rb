@@ -16,6 +16,7 @@ module RallyAPI
     DEFAULT_PAGE_SIZE = 200
 
     attr_accessor :rally_headers, :low_debug, :logger
+    attr_reader :find_threads, :rally_http_client
 
     def initialize(headers, low_debug, proxy_info)
       @rally_headers = headers
@@ -25,6 +26,7 @@ module RallyAPI
       @rally_http_client = HTTPClient.new
       @rally_http_client.receive_timeout = 300
       @rally_http_client.send_timeout    = 300
+      @rally_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       @rally_http_client.transparent_gzip_decompression = true
 
       #passed in proxy setup overrides env level proxy
@@ -33,10 +35,24 @@ module RallyAPI
         @rally_http_client.proxy = env_proxy
       end
       @rally_http_client.proxy = proxy_info unless !proxy_info.nil?
+
+      @find_threads = 4
     end
 
     def set_client_user(base_url, user, password)
       @rally_http_client.set_basic_auth(base_url, user, password)
+    end
+
+    def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
+      @rally_http_client.ssl_config.verify_mode = mode
+    end
+
+    #you can have any number you want as long as it is between 1 and 4
+    def set_find_threads(num_threads = 2)
+      return if num_threads.class != Fixnum
+      num_threads = 4 if num_threads > 4
+      num_threads = 1 if num_threads < 1
+      @find_threads = num_threads
     end
 
     def get_all_json_results(url, args, query_params, limit = 99999)
@@ -104,7 +120,7 @@ module RallyAPI
     private
 
     def run_threads(query_array)
-      num_threads = 4
+      num_threads = @find_threads
       thr_queries = []
       (0...num_threads).each { |ind| thr_queries[ind] = [] }
       query_array.each { |query| thr_queries[query[:page_num] % num_threads].push(query) }
