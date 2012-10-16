@@ -68,6 +68,8 @@ describe "Rally API specific artifact tests" do
       found = true if st == "Accepted"
     end
     found.should be_true
+    allowed_hr_states = @rally.allowed_values("HierarchicalRequirement", "ScheduleState")
+    allowed_hr_states.length.should > 3
   end
 
   it "should be able to interact with PIs 1.37" do

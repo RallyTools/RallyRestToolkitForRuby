@@ -71,13 +71,15 @@ module RallyAPI
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
 
-      @rally_objects = { :typedefinition => "TypeDefinition" }
-      cache_rally_objects()
+      @rally_objects = { :typedefinition => "TypeDefinition", :user => "User", :subscription => "Subscription",
+                         :workspace => "Workspace", :project => "Project" }
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
         raise StandardError, "unable to find default workspace #{@rally_workspace_name}" if @rally_default_workspace.nil?
       end
+
+      cache_rally_objects()
 
       if !@rally_project_name.nil?
         @rally_default_project = find_project(@rally_default_workspace, @rally_project_name)
@@ -283,7 +285,7 @@ module RallyAPI
       type_defs_query             = RallyQuery.new()
       type_defs_query.type        = :typedefinition
       type_defs_query.fetch       = true
-      type_defs_query.query_string= "(Name = \"#{query_type}\")"
+      type_defs_query.query_string= "(ElementName = \"#{query_type}\")"
       type_defs = find(type_defs_query)
 
       allowed_vals = {}
@@ -381,6 +383,7 @@ module RallyAPI
       type_defs_query = RallyQuery.new()
       type_defs_query.type = :typedefinition
       type_defs_query.fetch = "Name,Parent,TypePath"
+      type_defs_query.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
 
       type_defs = find(type_defs_query)
       type_defs.each do |td|
