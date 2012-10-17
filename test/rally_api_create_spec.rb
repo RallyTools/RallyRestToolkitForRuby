@@ -54,13 +54,13 @@ describe "Rally Json Create Tests" do
       q.type = :typedefinition
       q.query_string = '(Parent.Name = "Portfolio Item")'
       q.limit = 10
-      q.fetch = "Name"
+      q.fetch = "ELementName,TypePath"
     end
 
     name_to_try = nil
     pi_types.each do |typ|
-      next if typ.Name == "Portfolio Item"
-      name_to_try = typ.Name
+      next if typ.ElementName == "PortfolioItem"
+      name_to_try = typ.TypePath
     end
 
     fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}

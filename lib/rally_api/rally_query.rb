@@ -74,7 +74,7 @@ module RallyAPI
         errors.push("Project - #{@project} - must have a ref") if @project["_ref"].nil?
       end
 
-      if (allowed_objects[@type].nil?)
+      if (allowed_objects[@type.to_s].nil?)
         errors.push( "Object Type #{@type} is not query-able: inspect RallyRestJson.rally_objects for allowed types" )
       end
 
@@ -84,7 +84,7 @@ module RallyAPI
     private
 
     def parse_query_hash(query_hash)
-      @type               = query_hash[:type]
+      @type               = query_hash[:type].to_s
       @query_string       = query_hash[:query_string]
       @fetch              = query_hash[:fetch]
       @project_scope_down = query_hash[:project_scope_down]

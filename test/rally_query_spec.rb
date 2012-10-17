@@ -16,18 +16,20 @@ describe "Rally Query Tests" do
       @rally.create(:story, story_fields)
       @rally.create(:defect, defect_fields)
     end
-  end
 
-  #test hash for info below
-  query_hash = {}
-  query_hash[:type] = :defect
-  query_hash[:query_string] = "(State = \"Closed\")"
-  query_hash[:fetch] = "Name,State,etc"
-  query_hash[:project_scope_up] = false
-  query_hash[:project_scope_down] = true
-  query_hash[:order] = "ObjectID asc"
-  query_hash[:page_size] = 100
-  query_hash[:limit] = 1000
+    @testrally_objects = {"defect" => "Defect"}
+
+    #test hash for info below
+    @query_hash = {}
+    @query_hash[:type] = :defect
+    @query_hash[:query_string] = "(State = \"Closed\")"
+    @query_hash[:fetch] = "Name,State,etc"
+    @query_hash[:project_scope_up] = false
+    @query_hash[:project_scope_down] = true
+    @query_hash[:order] = "ObjectID asc"
+    @query_hash[:page_size] = 100
+    @query_hash[:limit] = 1000
+  end
 
   it "should throw an error for a bad object type" do
     test_hash = {}
@@ -46,18 +48,18 @@ describe "Rally Query Tests" do
   end
 
   it "should form a query based on a query hash" do
-    test_query = RallyAPI::RallyQuery.new(query_hash)
-    test_query.validate({:defect => "Defect"}).length.should == 0
+    test_query = RallyAPI::RallyQuery.new(@query_hash)
+    test_query.validate(@testrally_objects).length.should == 0
     params = test_query.make_query_params
 
-    params[:query].should             == query_hash[:query_string]
-    params[:fetch].should             == query_hash[:fetch]
+    params[:query].should             == @query_hash[:query_string]
+    params[:fetch].should             == @query_hash[:fetch]
     params[:workspace].nil?.should    == true
     params[:project].nil?.should      == true
-    params[:projectScopeUp].should    == query_hash[:project_scope_up]
-    params[:projectScopeDown].should  == query_hash[:project_scope_down]
-    params[:order].should             == query_hash[:order]
-    params[:pagesize].should          == query_hash[:page_size]
+    params[:projectScopeUp].should    == @query_hash[:project_scope_up]
+    params[:projectScopeDown].should  == @query_hash[:project_scope_down]
+    params[:order].should             == @query_hash[:order]
+    params[:pagesize].should          == @query_hash[:page_size]
   end
 
   it "should form a query by setting the member variables" do
@@ -72,7 +74,7 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "true"
 
-    test_query.validate({:defect => "Defect"}).length.should == 0
+    test_query.validate(@testrally_objects).length.should == 0
 
     params = test_query.make_query_params
 
@@ -94,15 +96,15 @@ describe "Rally Query Tests" do
 
     test_query = RallyAPI::RallyQuery.new(qh)
 
-    test_query.type.should == :defect
+    test_query.type.should == "defect"
   end
 
   it "should make a query and allow setting type by property" do
     test_query = RallyAPI::RallyQuery.new()
-    test_query.type = :defect
+    test_query.type = "defect"
     test_query.fetch = "Name"
 
-    test_query.type.should == :defect
+    test_query.type.should == "defect"
   end
 
   it "should validate a query" do
@@ -110,7 +112,7 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "Name"
 
-    test_query.validate({:defect => "Defect"}).length.should == 0
+    test_query.validate(@testrally_objects).length.should == 0
   end
 
   it "should throw an error for a bad query type" do
@@ -118,7 +120,7 @@ describe "Rally Query Tests" do
     test_query.type = :bucky
     test_query.fetch = "Name"
 
-    test_query.validate({:defect => "Defect"}).length.should > 0
+    test_query.validate(@testrally_objects).length.should > 0
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 
@@ -129,7 +131,7 @@ describe "Rally Query Tests" do
     test_query.workspace = "bucky"
     test_query.project = "badger"
 
-    test_query.validate({:defect => "Defect"}).length.should > 1
+    test_query.validate(@testrally_objects).length.should > 1
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 
@@ -140,7 +142,7 @@ describe "Rally Query Tests" do
     test_query.page_size = -1
     test_query.limit = -1
 
-    test_query.validate({:defect => "Defect"}).length.should > 1
+    test_query.validate(@testrally_objects).length.should > 1
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 

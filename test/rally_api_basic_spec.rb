@@ -13,10 +13,10 @@ describe "Rally Json API" do
 
   #note - in wsapi 1.37 and above, we now have PI split out in dynatypes - prior to that, they aren't there
   it "should have a list of cached object names" do
-    @rally.rally_objects[:hierarchicalrequirement].should == "HierarchicalRequirement"
-    @rally.rally_objects[:defect]. should == "Defect"
-    @rally.rally_objects[:portfolioitem].should == "PortfolioItem" unless @rally.wsapi_version.split(".")[1].to_i < 37
-    @rally.rally_objects[:requirement].should == "Requirement"
+    @rally.rally_objects["hierarchicalrequirement"].should == "HierarchicalRequirement"
+    @rally.rally_objects["defect"]. should == "Defect"
+    @rally.rally_objects["portfolioitem"].should == "PortfolioItem" unless @rally.wsapi_version.split(".")[1].to_i < 37
+    @rally.rally_objects["requirement"].should == "Requirement"
   end
 
   it "should have a default workspace and project" do

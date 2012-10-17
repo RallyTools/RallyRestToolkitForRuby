@@ -6,7 +6,7 @@ describe "Rally Custom Headers" do
 
   it "should have the basic information" do
     ch = RallyAPI::CustomHttpHeader.new()
-    ch.name.should == "RallyRestJson"
+    ch.name.should == "RallyRestJsonRuby"
     ch.platform.should match("Ruby")
     ch.library.should match("RallyRestJson version")
   end
@@ -16,7 +16,7 @@ describe "Rally Custom Headers" do
     headers = ch.headers
 
     #puts headers
-    headers[:"X-RallyIntegrationName"].should == "RallyRestJson"
+    headers[:"X-RallyIntegrationName"].should == "RallyRestJsonRuby"
     headers[:"X-RallyIntegrationPlatform"].should match("Ruby")
   end
 

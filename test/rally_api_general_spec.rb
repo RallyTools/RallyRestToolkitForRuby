@@ -77,13 +77,13 @@ describe "Rally API specific artifact tests" do
       q.type = :typedefinition
       q.query_string = '(Parent.Name = "Portfolio Item")'
       q.limit = 10
-      q.fetch = "Name"
+      q.fetch = "ElementName,TypePath"
     end
 
     name_to_try = nil
     pi_types.each do |typ|
-      next if typ.Name == "Portfolio Item"
-      name_to_try = typ.Name
+      next if typ.ElementName == "PortfolioItem"
+      name_to_try = typ.TypePath
     end
 
     type_to_try = name_to_try.downcase.gsub(" ", "").to_sym

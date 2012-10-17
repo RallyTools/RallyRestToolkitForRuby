@@ -60,4 +60,12 @@ describe "Rally Json Objects" do
     test_object.Children[1].Name.nil?.should == false
   end
 
+  it "should allow setting a field by []" do
+    test_object = RallyAPI::RallyObject.new(@mock_rally, NESTED_STORY)
+    test_object.nil?.should == false
+    new_desc = "A new description"
+    test_object["Description"] = new_desc
+    test_object.Description.should == new_desc
+  end
+
 end

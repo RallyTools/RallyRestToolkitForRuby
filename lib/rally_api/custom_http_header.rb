@@ -22,7 +22,7 @@ module RallyAPI
       @os = RUBY_PLATFORM
       @platform = "Ruby #{RUBY_VERSION}"
       @library = "RallyRestJson version #{RallyAPI::VERSION}"
-      @name = "RallyRestJson"
+      @name = "RallyRestJsonRuby"
 
       if custom_vals.keys.length > 0
         @name    = custom_vals[:name]

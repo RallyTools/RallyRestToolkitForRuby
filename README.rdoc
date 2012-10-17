@@ -32,8 +32,14 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
 
 
 === Querying Rally
+
+    #type names are stored in rally.rally_objects hash, you can inspect there for a list
+    #Look at the TypePath for all typedefs and this is the key to each hash.
+    #If you pass in a symbol (for code using versions prior to 0.7.3), it will be downcased and turned into a string
+    # examples are:   "defect", "hierarchicalrequirement", "portfolioitem/feature"
+
     test_query = RallyAPI::RallyQuery.new()
-    test_query.type = :defect
+    test_query.type = "defect"
     test_query.fetch = "Name"
     test_query.workspace = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/workspace/12345.js" } #optional
     test_query.project = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/project/12345.js" }     #optional
@@ -56,16 +62,16 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
 
     #for people comfortable passing around blocks:
     results = @rally.find do |q|
-        q.type = :defect
+        q.type = "defect"
         q.fetch = "Name,FormattedID"
         q.query_string = "(Priority = \"Low\")"
     end
 
 
 === Reading an Artifact
-    defect = @rally.read(:defect, 12345)      #by ObjectID
+    defect = @rally.read("defect", 12345)      #by ObjectID
     #or
-    defect = @rally.read(:defect, "FormattedID|DE42")      #by FormattedID
+    defect = @rally.read("defect", "FormattedID|DE42")      #by FormattedID
     #or if you already have an object like from a query
     results = @rally.find(RallyAPI::RallyQuery.new({:type => :defect, :query_string => "(FormattedID = DE42)"}))
     defect = results.first
@@ -85,25 +91,25 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
 === Creating an Artifact
     obj = {}
     obj["Name"] = "Test Defect created #{DateTime.now()}"
-    new_de = @rally.create(:defect, obj)
+    new_de = @rally.create("defect", obj)
     puts new_de["FormattedID"]
 
 === Updating an Artifact
     fields = {}
     fields["Severity"] = "Critical"
     fields["Description"] = "Description for the issue"
-    updated_defect = @rally.update(:defect, 12345, fields)    #by ObjectID
+    updated_defect = @rally.update("defect", 12345, fields)    #by ObjectID
     #or
-    updated_defect = @rally.update(:defect, "FormattedID|DE42", fields)   #by FormattedID
+    updated_defect = @rally.update("defect", "FormattedID|DE42", fields)   #by FormattedID
     # or
-    defect = @rally.read(:defect, 12345)      #by lookup then udpating via the object
+    defect = @rally.read("defect", 12345)      #by lookup then udpating via the object
     field_updates = {"Description" => "Changed Description"}
     defect.update(field_updates)
 
 === Utils
     #allowed values:  pass the Artifact type string or downcased symbol and the Display Name of the field
     @rally.allowed_values("Defect", "Severity")
-    @rally.allowed_values(:story, "ScheduleState")
+    @rally.allowed_values("story", "ScheduleState")
 
     #re-ranking:  rank_above and rank_below
     story1.rank_above(story2)   #in a drag and drop workspace move story1 relative to story2

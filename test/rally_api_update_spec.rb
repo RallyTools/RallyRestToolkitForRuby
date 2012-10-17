@@ -47,6 +47,15 @@ describe "Rally Json Update Tests" do
     updated_item.PlanEstimate.should == new_est
   end
 
+  it "should be able to update a PI/feature" do
+    dtm = DateTime.now()
+    test_feature = @rally.create("portfolioitem/feature", {:Name => "test feature for rally api - #{dtm}"})
+    desc = "adding description"
+    update_fields = {:Description => "#{desc}"}
+    upd = test_feature.update(update_fields)
+    upd["Description"].should == desc
+  end
+
   it "should rank relative to" do
     story1_rank = @test_story["Rank"]
     story1_rank.should be > 0

@@ -40,6 +40,11 @@ module RallyAPI
       get_val(field_name)
     end
 
+    def []=(field_name, value)
+      return if field_name.nil?
+      @rally_object[field_name] = value
+    end
+
     def read(params = nil)
       @rally_object = @rally_rest.reread(@rally_object, params)
       self

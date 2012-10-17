@@ -71,8 +71,8 @@ module RallyAPI
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
 
-      @rally_objects = { :typedefinition => "TypeDefinition", :user => "User", :subscription => "Subscription",
-                         :workspace => "Workspace", :project => "Project" }
+      @rally_objects = { "typedefinition" => "TypeDefinition", "user" => "User", "subscription" => "Subscription",
+                         "workspace" => "Workspace", "project" => "Project" }
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
@@ -131,7 +131,7 @@ module RallyAPI
 
     def user
       args = { :method => :get }
-      json_response = @rally_connection.send_request(make_get_url(@rally_objects[:user]), args)
+      json_response = @rally_connection.send_request(make_get_url(@rally_objects["user"]), args)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type])
     end
@@ -278,12 +278,12 @@ module RallyAPI
     #todo - check support for portfolio item fields
     def allowed_values(type, field)
       if type.class == Symbol
-        query_type = @rally_objects[type]
+        query_type = @rally_objects[type.to_s]
       else
         query_type = type
       end
       type_defs_query             = RallyQuery.new()
-      type_defs_query.type        = :typedefinition
+      type_defs_query.type        = "typedefinition"
       type_defs_query.fetch       = true
       type_defs_query.query_string= "(ElementName = \"#{query_type}\")"
       type_defs = find(type_defs_query)
@@ -324,10 +324,11 @@ module RallyAPI
     end
 
     def check_type(type_name)
-      if @rally_objects[type_name].nil?
+      type = @rally_objects[type_name.to_s]
+      if type.nil?
         raise StandardError, "The object type #{type_name} is not valid for the wsapi"
       end
-      @rally_objects[type_name].gsub(" ", "")   #for wsapi no space is expected
+      type.gsub(" ", "")   #for wsapi no space is expected
     end
 
     #ref should be like https://rally1.rallydev.com/slm/webservice/1.25/defect/12345.js
@@ -353,7 +354,7 @@ module RallyAPI
 
     def ref_by_formatted_id(type, fid)
       query = RallyQuery.new()
-      query.type          = type.downcase.to_sym
+      query.type          = type.downcase
       query.query_string  = "(FormattedID = #{fid})"
       query.limit         = 20
       query.fetch         = "FormattedID"
@@ -378,32 +379,29 @@ module RallyAPI
       fields
     end
 
-
     def cache_rally_objects()
       type_defs_query = RallyQuery.new()
-      type_defs_query.type = :typedefinition
+      type_defs_query.type = "typedefinition"
       type_defs_query.fetch = "Name,Parent,TypePath"
       type_defs_query.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
 
       type_defs = find(type_defs_query)
       type_defs.each do |td|
-        type_sym = td.Name.downcase.gsub(" ", "").to_sym
-        url_path = td.TypePath.nil? ? td.Name : td.TypePath
-        @rally_objects[type_sym] = url_path
+        url_path = td.TypePath.nil? ? td.ElementName : td.TypePath
+        @rally_objects[url_path.downcase] = url_path
 
         parent_type = td.Parent
-        if !parent_type.nil? && (@rally_objects[parent_type.Name].nil?)
-          url_path = parent_type.TypePath.nil? ? parent_type.Name : parent_type.TypePath
-          @rally_objects[parent_type.Name.downcase.gsub(" ", "").to_sym] = url_path
+        if !parent_type.nil? && (@rally_objects[parent_type.TypePath].nil?)
+          url_path = parent_type.TypePath.nil? ? parent_type.ElementName : parent_type.TypePath
+          @rally_objects[url_path.downcase] = url_path
         end
       end
 
       #some convenience keys to help people - someday we'll fix the api and make HR called story
-      @rally_objects[:useriterationcapacity]  = "User Iteration Capacity"
-      @rally_objects[:userpermission]         = "User Permission"
-      @rally_objects[:story]                  = "Hierarchical Requirement"
-      @rally_objects[:userstory]              = "Hierarchical Requirement"
-
+      @rally_objects["useriterationcapacity"]  = "User Iteration Capacity"
+      @rally_objects["userpermission"]         = "User Permission"
+      @rally_objects["story"]                  = "Hierarchical Requirement"
+      @rally_objects["userstory"]              = "Hierarchical Requirement"
     end
 
   end
