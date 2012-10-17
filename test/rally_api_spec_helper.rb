@@ -6,6 +6,7 @@ SimpleCov.filters.clear
 
 SimpleCov.start do
   add_filter '/test/'
+  add_filter '/.rvm/'
 end
 
 require 'yaml'
