@@ -382,7 +382,7 @@ module RallyAPI
     def cache_rally_objects()
       type_defs_query = RallyQuery.new()
       type_defs_query.type = "typedefinition"
-      type_defs_query.fetch = "Name,Parent,TypePath"
+      type_defs_query.fetch = "Name,Parent,ElementName,TypePath"
       type_defs_query.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
 
       type_defs = find(type_defs_query)

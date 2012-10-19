@@ -19,6 +19,15 @@ describe "Rally Json API" do
     @rally.rally_objects["requirement"].should == "Requirement"
   end
 
+  it "should get the cached objects properly wsapi prior to 1.37" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
+    rally_config[:version] = 1.34
+    test_rally = RallyAPI::RallyRestJson.new(rally_config)
+    @rally.rally_objects["hierarchicalrequirement"].should == "HierarchicalRequirement"
+    @rally.rally_objects["defect"]. should == "Defect"
+    @rally.rally_objects["requirement"].should == "Requirement"
+  end
+
   it "should have a default workspace and project" do
     @rally.rally_default_workspace.nil?.should == false
     @rally.rally_default_project.nil?.should == false
