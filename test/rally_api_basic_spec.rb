@@ -44,7 +44,7 @@ describe "Rally Json API" do
   end
 
   it "should take a logger on create" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger")
     my_logger.should_receive(:debug).at_least(:twice)
     rally_config[:logger] = my_logger
@@ -53,7 +53,7 @@ describe "Rally Json API" do
   end
 
   it "should turn off logger" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger")
     my_logger.should_not_receive(:debug)
     rally_config[:logger] = my_logger
@@ -62,7 +62,7 @@ describe "Rally Json API" do
   end
 
   it "should turn on logger discretely" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger")
     my_logger.should_receive(:debug).exactly(2).times
     rally_config[:logger] = my_logger
@@ -85,5 +85,15 @@ describe "Rally Json API" do
     @rally.rally_connection.set_ssl_verify_mode(verify_off)
     @rally.rally_connection.rally_http_client.ssl_config.verify_mode.should == verify_off
   end
+
+  it "should set the proxy info correctly" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
+    proxy_setup = "http://puser:ppass@someproxy:3128"
+    rally_config[:proxy] = proxy_setup
+    errmsg1 = "Rally Rest Json: - rescued exception - getaddrinfo: nodename nor servname provided, or not known "
+    errmsg2 = "http://someproxy:3128"
+    lambda {RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /#{errmsg1}.*#{errmsg2}/)
+  end
+
 
 end

@@ -34,7 +34,7 @@ module RallyAPI
       if (!env_proxy.nil?) && (proxy_info.nil?)
         @rally_http_client.proxy = env_proxy
       end
-      @rally_http_client.proxy = proxy_info unless !proxy_info.nil?
+      @rally_http_client.proxy = proxy_info unless proxy_info.nil?
 
       @find_threads = 4
     end
