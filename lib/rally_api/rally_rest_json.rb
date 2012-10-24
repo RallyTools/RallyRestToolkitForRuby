@@ -148,7 +148,7 @@ module RallyAPI
       object2create = { rally_type => make_ref_fields(fields) }
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
-      json_response = @rally_connection.send_request(make_create_url(rally_type), args, object2create)
+      json_response = @rally_connection.send_request(make_create_url(rally_type), args)
       #todo - check for warnings
       RallyObject.new(self, json_response["CreateResult"]["Object"]).read()
     end

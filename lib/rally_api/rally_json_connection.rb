@@ -102,7 +102,7 @@ module RallyAPI
       req_args[:header] = req_headers
 
       begin
-        log_info("Rally API calling #{method} - #{url} with #{req_args}") if @low_debug
+        log_info("Rally API calling #{method} - #{url} with #{req_args}")
         response = @rally_http_client.request(method, url, req_args)
       rescue Exception => ex
         msg =  "Rally Rest Json: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
@@ -110,7 +110,7 @@ module RallyAPI
         raise StandardError, msg
       end
 
-      log_info("RallyAPI response was - #{response.inspect}") if @low_debug
+      log_info("RallyAPI response was - #{response.inspect}")
       json_obj = JSON.parse(response.body)   #todo handle null post error
       errs = check_for_errors(json_obj)
       raise StandardError, "\nError on request - #{url} - \n#{errs}" if errs[:errors].length > 0
@@ -147,6 +147,7 @@ module RallyAPI
     end
 
     def log_info(message)
+      return unless @low_debug
       puts message if @logger.nil?
       @logger.debug(message) unless @logger.nil?
     end
@@ -164,7 +165,6 @@ module RallyAPI
         errors    = result["CreateResult"]["Errors"]
         warnings  = result["CreateResult"]["Warnings"]
       end
-
       {:errors => errors, :warnings => warnings}
     end
 
