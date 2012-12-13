@@ -224,5 +224,34 @@ describe "Rally Query Tests" do
     @rally.rally_connection.find_threads.should == 2
   end
 
+  #support the crazy query string structure for the api
+  #each condition with an and or an or needs to be wrapped rpn style in ()
+  it "should build complex query with helper functions" do
+    test_query = RallyAPI::RallyQuery.new()
+    test_query.type = :defect
+
+    or1_text = '((Severity = "Major Problem") OR (Severity = "Crash/Data Loss"))'
+    orand1_text = '(((Severity = "Major Problem") OR (Severity = "Crash/Data Loss")) AND (Priority = Low))'
+    big_or_text = '(((Severity = "Major Problem") OR (Severity = "Crash/Data Loss")) OR (Severity = "Minor Problem"))'
+    crazy_and_text = '(((Severity = "Major Problem") AND (Priority = "Low")) OR ((Severity = "Crash/Data Loss") AND (Priority = "Normal")))'
+
+    or_conditions = ['Severity = "Major Problem"', 'Severity = "Crash/Data Loss"', 'Severity = "Minor Problem"']
+    query_str = test_query.build_query_segment(or_conditions, "OR")
+    query_str.should == big_or_text
+
+    query_str = test_query.build_query_segment(or_conditions[0..1], "OR")
+    query_str.should == or1_text
+
+    query_str = test_query.add_and(query_str, "Priority = Low")
+    query_str.should == orand1_text
+
+    and_conditions1 = ['Severity = "Major Problem"', 'Priority = "Low"']
+    and_conditions2 = ['Severity = "Crash/Data Loss"', 'Priority = "Normal"']
+    and_str1 = test_query.build_query_segment(and_conditions1, "AND")
+    and_str2  = test_query.build_query_segment(and_conditions2, "AND")
+    query_str = test_query.add_or(and_str1, and_str2)
+    query_str.should == crazy_and_text
+  end
+
 
 end

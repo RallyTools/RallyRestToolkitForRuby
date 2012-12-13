@@ -81,6 +81,43 @@ module RallyAPI
       errors
     end
 
+    #support the crazy query string structure for the api
+    #each condition with an and or an or needs to be wrapped rpn style in ()
+    def build_query_segment(condition_array, op)
+      return nil if condition_array.length == 0
+      return condition_array.first if condition_array.length == 1
+
+      op = op.downcase  #should be or or and
+
+      query_segment = ""
+      condition_array.each do |condition|
+        q_part = "(#{condition})" if condition[0] != "("
+        case op
+          when 'or'
+            query_segment = add_or(query_segment, q_part)
+          when 'and'
+            query_segment = add_and(query_segment, q_part)
+          else
+        end
+      end
+
+      return query_segment
+    end
+
+    def add_or(current_q, new_conditions)
+      return current_q if (new_conditions.nil? || new_conditions.empty?)
+      return new_conditions if (current_q.nil? || current_q.empty?)
+      new_conditions = "(#{new_conditions})" if new_conditions[0] != "("
+      "(#{current_q} OR #{new_conditions})"
+    end
+
+    def add_and(current_q, new_conditions)
+      return current_q if new_conditions.nil? || new_conditions.empty?
+      return new_conditions if current_q.nil? || current_q.empty?
+      new_conditions = "(#{new_conditions})" if new_conditions[0] != "("
+      "(#{current_q} AND #{new_conditions})"
+    end
+
     private
 
     def parse_query_hash(query_hash)
