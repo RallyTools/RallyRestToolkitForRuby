@@ -24,6 +24,7 @@ module RallyAPI
       @logger = nil
 
       @rally_http_client = HTTPClient.new
+      @rally_http_client.cookie_manager = nil       #leaving this off unitl JSESSION/ZESSSIONID settles down
       @rally_http_client.receive_timeout = 300
       @rally_http_client.send_timeout    = 300
       @rally_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -88,9 +89,10 @@ module RallyAPI
     end
 
     #args should have :method
-    def send_request(url, args, url_params = {})
+    def send_request(url, args, url_params = nil)
       method = args[:method]
-      req_args = { :query => url_params }
+      req_args = {}
+      req_args[:query] = url_params unless url_params.nil?
 
       req_headers = @rally_headers.headers
       if (args[:method] == :post) || (args[:method] == :put)

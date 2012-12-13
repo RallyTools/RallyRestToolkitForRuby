@@ -1,8 +1,8 @@
-require_relative "custom_http_header"
-require_relative "rally_json_connection"
-require_relative "rally_object"
-require_relative "rally_query"
-require_relative "rally_query_result"
+#require "custom_http_header"
+#require "rally_json_connection"
+#require "rally_object"
+#require "rally_query"
+#require "rally_query_result"
 
 # --
 #Copyright (c) 2002-2012 Rally Software Development Corp. All Rights Reserved.

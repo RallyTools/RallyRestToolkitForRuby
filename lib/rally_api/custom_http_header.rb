@@ -3,8 +3,6 @@
 #of the applicable Subscription Agreement between your company and
 #Rally Software Development Corp.
 
-require_relative "version"
-
 #custom headers help Rally identify the integration you have written
 #  You can make custom headers by:
 #  ch = RallyAPI::CustomHttpHeader.new({:name => "CustomRoobyTool", :vendor => "acme inc", :version => "1.0"})
