@@ -275,21 +275,33 @@ module RallyAPI
       RallyObject.new(self, update["OperationResult"]["Object"])
     end
 
+    def get_typedef_for(type)
+      type = type.to_s if type.class == Symbol
+      type = @rally_objects[type.downcase]
+      type_def_query             = RallyQuery.new()
+      type_def_query.type        = "typedefinition"
+      type_def_query.fetch       = true
+      type_def_query.query_string= "(TypePath = \"#{type}\")"
+      type_def = find(type_def_query)
+      type_def.first
+    end
+
+    def get_fields_for(type)
+      type_def = get_typedef_for(type)
+      return nil if type_def.nil?
+      fields = {}
+      type_def["Attributes"].each do |attr|
+        field_name = attr["ElementName"]
+        fields[field_name] = attr
+      end
+      fields
+    end
+
     #todo - check support for portfolio item fields
     def allowed_values(type, field)
-      if type.class == Symbol
-        query_type = @rally_objects[type.to_s]
-      else
-        query_type = type
-      end
-      type_defs_query             = RallyQuery.new()
-      type_defs_query.type        = "typedefinition"
-      type_defs_query.fetch       = true
-      type_defs_query.query_string= "(ElementName = \"#{query_type}\")"
-      type_defs = find(type_defs_query)
-
+      type_def = get_typedef_for(type)
       allowed_vals = {}
-      type_defs[0]["Attributes"].each do |attr|
+      type_def["Attributes"].each do |attr|
         next if attr["ElementName"] != field
         attr["AllowedValues"].each do |val_ref|
           val = val_ref["StringValue"]

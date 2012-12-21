@@ -108,6 +108,31 @@ describe "Rally API specific artifact tests" do
       found = true if pi.Name == fields[:Name] && pi.ObjectID == new_pi.ObjecID
     end
     found.should == true
+
+    fields = @rally.get_fields_for(type_to_try)
+    fields.should_not be_nil
+  end
+
+  it "should get the field list for defect" do
+    fields = @rally.get_fields_for("defect")
+    fields.should_not be_nil
+    fields["State"].should_not be_nil
+    fields["as;dfklasdf"].should be_nil
+  end
+
+  it "should get the field list for stories" do
+    fields = @rally.get_fields_for("story")
+    fields.should_not be_nil
+    fields["ScheduleState"].should_not be_nil
+    fields["State"].should be_nil
+    fields["as;dfklasdf"].should be_nil
+  end
+
+  it "should get the field list for tasks" do
+    fields = @rally.get_fields_for("task")
+    fields.should_not be_nil
+    fields["State"].should_not be_nil
+    fields["as;dfklasdf"].should be_nil
   end
 
 end
