@@ -44,7 +44,7 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.37"
+    DEFAULT_WSAPI_VERSION = "1.39"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
     attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info
@@ -146,9 +146,15 @@ module RallyAPI
       end
 
       object2create = { rally_type => make_ref_fields(fields) }
+
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
-      json_response = @rally_connection.send_request(make_create_url(rally_type), args)
+      params = {}
+      params[ :workspace ] = fields["Workspace"]
+              
+      #json_response = @rally_connection.send_request(make_create_url(rally_type,fields["Workspace"]), args)
+      json_response = @rally_connection.send_request(make_create_url(rally_type), args, params)
+
       #todo - check for warnings
       RallyObject.new(self, json_response["CreateResult"]["Object"]).read()
     end
@@ -157,6 +163,10 @@ module RallyAPI
     def read(type, obj_id, params = nil)
       rally_type = check_type(type)
       ref = check_id(rally_type, obj_id)
+      if params.nil?
+        params = {}
+      end
+      params[ :workspace ] = @rally_default_workspace._ref unless ! params[:workspace].nil?
       args = { :method => :get }
       #json_response = @rally_connection.read_object(ref, args, params)
       json_response = @rally_connection.send_request(ref, args, params)
@@ -174,7 +184,11 @@ module RallyAPI
     def reread(json_object, params = nil)
       args = { :method => :get }
       #json_response = @rally_connection.read_object(json_object["_ref"], args, params)
-      json_response = @rally_connection.send_request(json_object["_ref"], args, params)
+      item_url = json_object['_ref']
+      if json_object["Workspace"] && json_object["Workspace"]["_ref"]
+        item_url = "#{item_url}?workspace=#{json_object['Workspace']['_ref']}"
+      end
+      json_response = @rally_connection.send_request(item_url, args, params)
       rally_type = json_response.keys[0]
       json_response[rally_type]
     end
@@ -323,7 +337,8 @@ module RallyAPI
     end
 
     def make_create_url(type)
-      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/create.js"
+      url =  "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/create.js"
+      return url
     end
 
     def make_query_url(rally_url, wsapi_version, type)
