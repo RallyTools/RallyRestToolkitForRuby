@@ -45,7 +45,7 @@ module RallyAPI
       @rally_object[field_name] = value
     end
 
-    def read(params = nil)
+    def read(params = {})
       @rally_object = @rally_rest.reread(@rally_object, params)
       self
     end

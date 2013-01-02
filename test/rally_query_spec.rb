@@ -31,12 +31,10 @@ describe "Rally Query Tests" do
     @query_hash[:limit] = 1000
   end
 
-  it "should throw an error for a bad object type" do
+  it "should throw an error for no object type" do
     test_hash = {}
-    test_hash[:type] = "Bucky"
-
     test_query = RallyAPI::RallyQuery.new(test_hash)
-    test_query.validate({}).length.should > 0
+    test_query.validate().length.should > 0
   end
 
   it "should throw an error for a bad pagesize" do
@@ -44,12 +42,12 @@ describe "Rally Query Tests" do
     test_hash[:pagesize] = 9999
 
     test_query = RallyAPI::RallyQuery.new(test_hash)
-    test_query.validate({}).length.should > 0
+    test_query.validate().length.should > 0
   end
 
   it "should form a query based on a query hash" do
     test_query = RallyAPI::RallyQuery.new(@query_hash)
-    test_query.validate(@testrally_objects).length.should == 0
+    test_query.validate().length.should == 0
     params = test_query.make_query_params
 
     params[:query].should             == @query_hash[:query_string]
@@ -74,7 +72,7 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "true"
 
-    test_query.validate(@testrally_objects).length.should == 0
+    test_query.validate().length.should == 0
 
     params = test_query.make_query_params
 
@@ -112,16 +110,7 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "Name"
 
-    test_query.validate(@testrally_objects).length.should == 0
-  end
-
-  it "should throw an error for a bad query type" do
-    test_query = RallyAPI::RallyQuery.new()
-    test_query.type = :bucky
-    test_query.fetch = "Name"
-
-    test_query.validate(@testrally_objects).length.should > 0
-    lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
+    test_query.validate().length.should == 0
   end
 
   it "should throw an error for a bad query workspace and project" do
@@ -131,7 +120,7 @@ describe "Rally Query Tests" do
     test_query.workspace = "bucky"
     test_query.project = "badger"
 
-    test_query.validate(@testrally_objects).length.should > 1
+    test_query.validate().length.should > 1
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 
@@ -142,7 +131,7 @@ describe "Rally Query Tests" do
     test_query.page_size = -1
     test_query.limit = -1
 
-    test_query.validate(@testrally_objects).length.should > 1
+    test_query.validate().length.should > 1
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 

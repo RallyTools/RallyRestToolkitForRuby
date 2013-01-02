@@ -30,7 +30,7 @@
 module RallyAPI
 
   #--
-  #this contstant is here - a tradeoff of speed vs completeness- right now speed wins because it is so
+  #this contstant is here as a tradeoff of speed vs completeness- right now speed wins because it is so
   #expensive to query typedef and read all attributes for "OBJECT" or "COLLECTION" types
   #++
   RALLY_REF_FIELDS = { "Subscription" => :subscription, "Workspace" => :workspace, "Project" => :project,
@@ -44,15 +44,17 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.37"
+    DEFAULT_WSAPI_VERSION = "1.39"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
     attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info
-    attr_accessor :rally_rest_api_compat, :logger
+    attr_accessor :rally_rest_api_compat, :logger, :rally_alias_types
 
-    attr_reader   :rally_connection, :rally_objects
+    attr_reader   :rally_connection
 
     def initialize(args)
+      @rally_alias_types     = { "story" => "HierarchicalRequirement", "userstory" => "HierarchicalRequirement" }
+
       @rally_url            = args[:base_url] || "https://rally1.rallydev.com/slm"
       @rally_user           = args[:username]
       @rally_password       = args[:password]
@@ -62,6 +64,7 @@ module RallyAPI
       @rally_headers        = args[:headers]  || CustomHttpHeader.new
       @proxy_info           = args[:proxy]
 
+      #flag to help RallyRestAPI users to use snake case field names eg Defect.fixed_in_build vs Defect["FixedInBuild"]
       @rally_rest_api_compat  = args[:rally_rest_api_compat] || false
 
       @low_debug = args[:debug]  || false
@@ -71,15 +74,10 @@ module RallyAPI
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
 
-      @rally_objects = { "typedefinition" => "TypeDefinition", "user" => "User", "subscription" => "Subscription",
-                         "workspace" => "Workspace", "project" => "Project" }
-
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
         raise StandardError, "unable to find default workspace #{@rally_workspace_name}" if @rally_default_workspace.nil?
       end
-
-      cache_rally_objects()
 
       if !@rally_project_name.nil?
         @rally_default_project = find_project(@rally_default_workspace, @rally_project_name)
@@ -131,34 +129,37 @@ module RallyAPI
 
     def user
       args = { :method => :get }
-      json_response = @rally_connection.send_request(make_get_url(@rally_objects["user"]), args)
+      json_response = @rally_connection.send_request(make_get_url("user"), args)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type])
     end
 
 
     def create(type, fields)
-      rally_type = check_type(type)
-
+      type = check_type(type)
       if (fields["Workspace"].nil? && fields["Project"].nil?)
         fields["Workspace"] = @rally_default_workspace._ref unless @rally_default_workspace.nil?
         fields["Project"] = @rally_default_project._ref unless @rally_default_project.nil?
       end
 
-      object2create = { rally_type => make_ref_fields(fields) }
+      ws_ref = fields["Workspace"]
+      ws_ref = ws_ref["_ref"] unless ws_ref.class == String
+      params = { :workspace => ws_ref }
+
+      object2create = { type => make_ref_fields(fields) }
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
-      json_response = @rally_connection.send_request(make_create_url(rally_type), args)
+      json_response = @rally_connection.send_request(make_create_url(type), args, params)
       #todo - check for warnings
       RallyObject.new(self, json_response["CreateResult"]["Object"]).read()
     end
 
 
-    def read(type, obj_id, params = nil)
-      rally_type = check_type(type)
-      ref = check_id(rally_type, obj_id)
+    def read(type, obj_id, params = {})
+      type = check_type(type)
+      ref = check_id(type.to_s, obj_id)
+      params[:workspace] = @rally_default_workspace.ref if params[:workspace].nil?
       args = { :method => :get }
-      #json_response = @rally_connection.read_object(ref, args, params)
       json_response = @rally_connection.send_request(ref, args, params)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type])
@@ -171,8 +172,11 @@ module RallyAPI
       json_response["OperationResult"]
     end
 
-    def reread(json_object, params = nil)
+    def reread(json_object, params = {})
       args = { :method => :get }
+      if params[:workspace].nil? && (json_object["Workspace"] && json_object["Workspace"]["_ref"])
+        params[:workspace] = json_object['Workspace']['_ref']
+      end
       #json_response = @rally_connection.read_object(json_object["_ref"], args, params)
       json_response = @rally_connection.send_request(json_object["_ref"], args, params)
       rally_type = json_response.keys[0]
@@ -181,9 +185,9 @@ module RallyAPI
 
 
     def update(type, obj_id, fields)
-      rally_type = check_type(type)
-      ref = check_id(rally_type, obj_id)
-      json_update = { rally_type => make_ref_fields(fields) }
+      type = check_type(type)
+      ref = check_id(type.to_s, obj_id)
+      json_update = { type.to_s => make_ref_fields(fields) }
       args = { :method => :post, :payload => json_update }
       #json_response = @rally_connection.update_object(ref, args, json_update)
       json_response = @rally_connection.send_request(ref, args)
@@ -222,12 +226,12 @@ module RallyAPI
         query_obj.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
       end
 
-      errs = query_obj.validate(@rally_objects)
+      errs = query_obj.validate()
       if errs.length > 0
         raise StandardError, "Errors making Rally Query: #{errs.to_s}"
       end
 
-      query_url = make_query_url(@rally_url, @wsapi_version, check_type(query_obj.type))
+      query_url = make_query_url(@rally_url, @wsapi_version, check_type(query_obj.type.to_s))
       query_params = query_obj.make_query_params
       args =  {:user => @rally_user, :password => @rally_password}
       json_response = @rally_connection.get_all_json_results(query_url, args, query_params, query_obj.limit)
@@ -277,7 +281,7 @@ module RallyAPI
 
     def get_typedef_for(type)
       type = type.to_s if type.class == Symbol
-      type = @rally_objects[type.downcase]
+      type = check_type(type)
       type_def_query             = RallyQuery.new()
       type_def_query.type        = "typedefinition"
       type_def_query.fetch       = true
@@ -335,12 +339,12 @@ module RallyAPI
       "/#{ref_pieces[-2]}/#{ref_pieces[-1].split(".js")[0]}"
     end
 
+    #check for an alias of a type - eg userstory => hierarchicalrequirement
+    #you can add to @rally_alias_types as desired
     def check_type(type_name)
-      type = @rally_objects[type_name.to_s]
-      if type.nil?
-        raise StandardError, "The object type #{type_name} is not valid for the wsapi"
-      end
-      type.gsub(" ", "")   #for wsapi no space is expected
+      alias_name = @rally_alias_types[type_name.downcase.to_s]
+      return alias_name unless alias_name.nil?
+      return type_name
     end
 
     #ref should be like https://rally1.rallydev.com/slm/webservice/1.25/defect/12345.js
@@ -389,31 +393,6 @@ module RallyAPI
         end
       end
       fields
-    end
-
-    def cache_rally_objects()
-      type_defs_query = RallyQuery.new()
-      type_defs_query.type = "typedefinition"
-      type_defs_query.fetch = "Name,Parent,ElementName,TypePath"
-      type_defs_query.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
-
-      type_defs = find(type_defs_query)
-      type_defs.each do |td|
-        url_path = td.TypePath.nil? ? td.ElementName : td.TypePath
-        @rally_objects[url_path.downcase] = url_path
-
-        parent_type = td.Parent
-        if !parent_type.nil? && (@rally_objects[parent_type.TypePath].nil?)
-          url_path = parent_type.TypePath.nil? ? parent_type.ElementName : parent_type.TypePath
-          @rally_objects[url_path.downcase] = url_path
-        end
-      end
-
-      #some convenience keys to help people - someday we'll fix the api and make HR called story
-      @rally_objects["useriterationcapacity"]  = "User Iteration Capacity"
-      @rally_objects["userpermission"]         = "User Permission"
-      @rally_objects["story"]                  = "Hierarchical Requirement"
-      @rally_objects["userstory"]              = "Hierarchical Requirement"
     end
 
   end

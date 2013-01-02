@@ -23,6 +23,8 @@ require_relative "../lib/rally_api"
 #Workspace: Workspace Name
 #Project:   Project Name
 #Debug:     false
+#NonDefaultWS:  NonDefaultWorkspace
+#CustomPIType:  CustomType
 
 module RallyAPISpecHelper
   path = ""
@@ -40,5 +42,8 @@ module RallyAPISpecHelper
   TEST_SETUP[:workspace] = config["Workspace"]
   TEST_SETUP[:project]   = config["Project"]
   TEST_SETUP[:debug]     = config["Debug"]
-  #TEST_SETUP[:debug]     = true
+
+  EXTRA_SETUP = {}
+  EXTRA_SETUP[:nondefault_ws]  = config["NonDefaultWS"]
+  EXTRA_SETUP[:custom_pi_type] = config["CustomPIType"]
 end

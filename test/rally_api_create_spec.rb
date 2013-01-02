@@ -19,7 +19,7 @@ describe "Rally Json Create Tests" do
     obj = {}
     obj["Name"] = "Test Defect created #{DateTime.now()}"
 
-    lambda { @rally.create(:bucky, obj) }.should raise_exception(/The object type bucky is not valid/)
+    lambda { @rally.create(:bucky, obj) }.should raise_exception(StandardError, /Error on request/)
   end
 
   it "should create with a reference to another Object" do
@@ -47,26 +47,6 @@ describe "Rally Json Create Tests" do
     new_de.Name.should == obj["Name"]
     delete_result = new_de.delete()
     lambda { new_de.read }.should raise_exception(/Error on request -/)
-  end
-
-  it "should be able to create a PI post 1.37" do
-    pi_types = @rally.find do |q|
-      q.type = :typedefinition
-      q.query_string = '(Parent.Name = "Portfolio Item")'
-      q.limit = 10
-      q.fetch = "ELementName,TypePath"
-    end
-
-    name_to_try = nil
-    pi_types.each do |typ|
-      next if typ.ElementName == "PortfolioItem"
-      name_to_try = typ.TypePath
-    end
-
-    fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}
-    new_pi = @rally.create(name_to_try.downcase.gsub(" ", "").to_sym, fields)
-    new_pi.should_not be_nil
-    new_pi.Name.should == fields[:Name]
   end
 
 end

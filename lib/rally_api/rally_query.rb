@@ -51,10 +51,10 @@ module RallyAPI
       query_params
     end
 
-    def validate(allowed_objects)
+    def validate()
       errors = []
 
-      if @type.nil?
+      if @type.nil? || type == ""
         errors.push("Object type for query cannot be nil")
       end
 
@@ -72,10 +72,6 @@ module RallyAPI
 
       if !@project.nil?
         errors.push("Project - #{@project} - must have a ref") if @project["_ref"].nil?
-      end
-
-      if (allowed_objects[@type.to_s].nil?)
-        errors.push( "Object Type #{@type} is not query-able: inspect RallyRestJson.rally_objects for allowed types" )
       end
 
       errors

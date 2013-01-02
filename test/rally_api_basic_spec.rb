@@ -11,21 +11,11 @@ describe "Rally Json API" do
     @rally.user.UserName.should_not be_nil
   end
 
-  #note - in wsapi 1.37 and above, we now have PI split out in dynatypes - prior to that, they aren't there
-  it "should have a list of cached object names" do
-    @rally.rally_objects["hierarchicalrequirement"].should == "HierarchicalRequirement"
-    @rally.rally_objects["defect"]. should == "Defect"
-    @rally.rally_objects["portfolioitem"].should == "PortfolioItem" unless @rally.wsapi_version.split(".")[1].to_i < 37
-    @rally.rally_objects["requirement"].should == "Requirement"
-  end
-
-  it "should get the cached objects properly wsapi prior to 1.37" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
-    rally_config[:version] = 1.34
-    test_rally = RallyAPI::RallyRestJson.new(rally_config)
-    @rally.rally_objects["hierarchicalrequirement"].should == "HierarchicalRequirement"
-    @rally.rally_objects["defect"]. should == "Defect"
-    @rally.rally_objects["requirement"].should == "Requirement"
+  it "should properly allow aliases for types" do
+    @rally.rally_alias_types["story"].should == "HierarchicalRequirement"
+    an_alias = "myaliasfordefect"
+    @rally.rally_alias_types[an_alias] = "Defect"
+    @rally.rally_alias_types[an_alias].should == "Defect"
   end
 
   it "should have a default workspace and project" do
