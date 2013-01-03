@@ -80,10 +80,21 @@ describe "Rally Json API" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     proxy_setup = "http://puser:ppass@someproxy:3128"
     rally_config[:proxy] = proxy_setup
-    errmsg1 = "Rally Rest Json: - rescued exception - getaddrinfo: nodename nor servname provided, or not known "
+    errmsg1 = "RallyAPI: - rescued exception - getaddrinfo: nodename nor servname provided, or not known "
     errmsg2 = "http://someproxy:3128"
     lambda {RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /#{errmsg1}.*#{errmsg2}/)
   end
 
+  it "should throw a reasonable exception for a 404 URL" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
+    rally_config[:base_url] = "https://trial.rallydev.com/slm/slm"
+    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - An issue occurred/)
+  end
+
+  it "should throw a reasonable exception for a bad password or username" do
+    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
+    rally_config[:password] = "asdf"
+    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - An issue occurred/)
+  end
 
 end

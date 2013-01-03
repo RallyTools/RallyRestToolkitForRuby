@@ -10,7 +10,6 @@ require 'json'
 
 module RallyAPI
 
-
   class RallyJsonConnection
 
     DEFAULT_PAGE_SIZE = 200
@@ -107,12 +106,18 @@ module RallyAPI
         log_info("Rally API calling #{method} - #{url} with #{req_args}")
         response = @rally_http_client.request(method, url, req_args)
       rescue Exception => ex
-        msg =  "Rally Rest Json: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
+        msg =  "RallyAPI: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
         log_info(msg)
         raise StandardError, msg
       end
 
       log_info("RallyAPI response was - #{response.inspect}")
+      if response.status_code != 200
+        msg = "RallyAPI - An issue occurred (HTTP-#{response.status_code}) on request - #{url}."
+        msg << "\nResponse was: #{response.body}"
+        raise StandardError, msg
+      end
+
       json_obj = JSON.parse(response.body)   #todo handle null post error
       errs = check_for_errors(json_obj)
       raise StandardError, "\nError on request - #{url} - \n#{errs}" if errs[:errors].length > 0
