@@ -24,7 +24,7 @@ module RallyAPI
 
       @rally_http_client = HTTPClient.new
       @rally_http_client.protocol_retry_count = 2
-      @rally_http_client.cookie_manager = nil       #leaving this off unitl JSESSION/ZESSSIONID settles down
+      #@rally_http_client.cookie_manager = nil       #JSESSION/ZESSSIONID
       @rally_http_client.receive_timeout = 300
       @rally_http_client.send_timeout    = 300
       @rally_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -64,7 +64,6 @@ module RallyAPI
       params[:start]    = 1
       params = params.merge(query_params)
 
-      #query_result = send_json_request(url, args, params)
       query_result = send_request(url, args, params)
       all_results.concat(query_result["QueryResult"]["Results"])
       totals = query_result["QueryResult"]["TotalResultCount"]

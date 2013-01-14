@@ -7,15 +7,11 @@
 
 module RallyAPI
 
-  #todo add rankTo bottom and top
-  #https://trial.rallydev.com/slm/webservice/x/defect/oid.js?rankTo=BOTTOM
-  #https://trial.rallydev.com/slm/webservice/x/defect/oid.js?rankTo=TOP
-
   # RallyObject is a helper class that wraps the JSON.parsed hash
   #
   class RallyObject
 
-    attr_reader :rally_object
+    attr_reader :rally_object, :type
 
     def initialize(rally_rest, json_hash)
       @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
@@ -29,24 +25,24 @@ module RallyAPI
     end
 
     def to_s(*args)
-      @rally_object.to_json
+      rally_object.to_json
     end
 
     def to_json(*args)
-      @rally_object.to_json
+      rally_object.to_json
     end
 
     def [](field_name)
-      get_val(field_name)
+      get_val(field_name.to_s)
     end
 
     def []=(field_name, value)
       return if field_name.nil?
-      @rally_object[field_name] = value
+      rally_object[field_name.to_s] = value
     end
 
     def read(params = {})
-      @rally_object = @rally_rest.reread(@rally_object, params)
+      @rally_object = @rally_rest.reread(rally_object, params)
       self
     end
 
@@ -55,31 +51,31 @@ module RallyAPI
     end
 
     def ref
-      @rally_object["_ref"]
+      rally_object["_ref"]
     end
 
     def rank_above(relative_rally_object)
-      @rally_object = @rally_rest.rank_above(@rally_object["_ref"],relative_rally_object["_ref"]).rally_object
+      @rally_object = @rally_rest.rank_above(rally_object["_ref"],relative_rally_object["_ref"]).rally_object
       self
     end
 
     def rank_below(relative_rally_object)
-      @rally_object = @rally_rest.rank_below(@rally_object["_ref"],relative_rally_object["_ref"]).rally_object
+      @rally_object = @rally_rest.rank_below(rally_object["_ref"],relative_rally_object["_ref"]).rally_object
       self
     end
 
     def rank_to_bottom
-      @rally_object = @rally_rest.rank_to(@rally_object["_ref"], "BOTTOM").rally_object
+      @rally_object = @rally_rest.rank_to(rally_object["_ref"], "BOTTOM").rally_object
       self
     end
 
     def rank_to_top
-      @rally_object = @rally_rest.rank_to(@rally_object["_ref"], "TOP").rally_object
+      @rally_object = @rally_rest.rank_to(rally_object["_ref"], "TOP").rally_object
       self
     end
 
     def delete()
-      @rally_rest.delete(@rally_object["_ref"])
+      @rally_rest.delete(rally_object["_ref"])
     end
 
     private
@@ -95,7 +91,7 @@ module RallyAPI
     end
 
     def get_val(field)
-      return_val = @rally_object[field]
+      return_val = rally_object[field]
 
       if return_val.class == Hash
         return RallyObject.new(@rally_rest, return_val)
@@ -103,7 +99,7 @@ module RallyAPI
 
       if return_val.class == Array
         make_object_array(field)
-        return_val = @rally_object[field]
+        return_val = rally_object[field]
       end
 
       return_val
@@ -111,10 +107,10 @@ module RallyAPI
 
     def make_object_array(field)
       object_array = []
-      @rally_object[field].each do |rally_obj|
+      rally_object[field].each do |rally_obj|
         object_array.push(RallyObject.new(@rally_rest, rally_obj))
       end
-      @rally_object[field] = object_array
+      rally_object[field] = object_array
     end
 
     #taken from rally_rest_api - to try to help with backwards compatibility
