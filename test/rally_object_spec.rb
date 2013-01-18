@@ -5,7 +5,7 @@ require_relative "../lib/rally_api/rally_object"
 
 describe "Rally Json Objects" do
 
-  JSON_TEST_OBJECT = { "Name" => "Test Name", "Severity" => "High", "_type" => "defect"}
+  JSON_TEST_OBJECT = { "Name" => "Test Name", "Severity" => "High", "_type" => "defect", "ScheduleState" => "In-Progress"}
   UPDATED_TEST_OBJECT = { "Name" => "Test Name", "Severity" => "High", "Priority" => "Very Important","_type" => "defect"}
 
   TASK1 = {"Name" => "Task 1", "_type" => "task"}
@@ -66,6 +66,16 @@ describe "Rally Json Objects" do
     new_desc = "A new description"
     test_object["Description"] = new_desc
     test_object.Description.should == new_desc
+  end
+
+  it "should respect the RallyRestAPI compatibility flag when reading a field" do
+    mock_rally_with_compat = double("MockRallyRest")
+    mock_rally_with_compat.stub(:reread => UPDATED_TEST_OBJECT)
+    mock_rally_with_compat.stub(:rally_rest_api_compat => true)
+    test_object = RallyAPI::RallyObject.new(mock_rally_with_compat, JSON_TEST_OBJECT)
+    test_object.schedule_state.should == JSON_TEST_OBJECT["ScheduleState"]
+    test_object.to_s.should == JSON_TEST_OBJECT["Name"]
+    test_object.name.should == JSON_TEST_OBJECT["Name"]
   end
 
 end

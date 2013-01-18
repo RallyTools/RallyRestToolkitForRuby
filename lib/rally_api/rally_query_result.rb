@@ -8,7 +8,7 @@ module RallyAPI
   class RallyQueryResult
     include Enumerable
 
-    attr_accessor :results, :total_result_count
+    attr_reader :results, :total_result_count
 
     def initialize(rally_rest, json_results)
       @results            = json_results["QueryResult"]["Results"]
@@ -32,6 +32,14 @@ module RallyAPI
 
     def length
       @results.length
+    end
+
+    def empty?
+      length == 0
+    end
+
+    def results   #for compatiblity with code using rally_rest_api
+      self
     end
 
   end

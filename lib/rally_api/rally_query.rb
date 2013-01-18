@@ -28,6 +28,8 @@ module RallyAPI
     attr_accessor :type, :query_string, :fetch, :workspace, :project, :project_scope_up, :project_scope_down
     attr_accessor :order, :page_size, :limit
 
+    alias :pagesize :page_size
+
     def initialize(query_hash = nil)
       parse_query_hash(query_hash) if !query_hash.nil?
       @page_size          = 200 if @page_size.nil?

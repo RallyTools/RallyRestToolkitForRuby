@@ -10,6 +10,7 @@ require "rally_api/rally_query"
 require "rally_api/rally_query_result"
 require "rally_api/rally_rest_json"
 require "rally_api/version"
+require "rally_api/rally_collection"
 
 module RallyAPI
 end

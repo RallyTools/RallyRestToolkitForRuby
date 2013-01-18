@@ -49,7 +49,6 @@ module RallyAPI
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
     attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info
     attr_accessor :rally_rest_api_compat, :logger, :rally_alias_types
-
     attr_reader   :rally_connection
 
     def initialize(args)
@@ -143,9 +142,10 @@ module RallyAPI
       end
 
       ws_ref = fields["Workspace"]
-      ws_ref = ws_ref["_ref"] unless ws_ref.class == String
+      ws_ref = ws_ref["_ref"] unless ws_ref.class == String || ws_ref.nil?
       params = { :workspace => ws_ref }
 
+      fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
       object2create = { type => make_ref_fields(fields) }
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
@@ -183,10 +183,10 @@ module RallyAPI
       json_response[rally_type]
     end
 
-
     def update(type, obj_id, fields)
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
+      fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
       json_update = { type.to_s => make_ref_fields(fields) }
       args = { :method => :post, :payload => json_update }
       #json_response = @rally_connection.update_object(ref, args, json_update)
@@ -194,6 +194,7 @@ module RallyAPI
       #todo check for warnings on json_response["OperationResult"]
       RallyObject.new(self, reread({"_ref" => ref}))
     end
+    alias :update_ref :update
 
     ##-----
     #Querying Rally example
@@ -356,14 +357,15 @@ module RallyAPI
       false
     end
 
-    #expecting idstring to have "FormattedID|DE45" or the objectID
+    #expecting idstring to have "FormattedID|DE45" or the objectID or a ref itself
     def check_id(type, idstring)
       if idstring.class == Fixnum
         return make_read_url(type, idstring)
       end
 
-      if (idstring.class == String) && (idstring.index("FormattedID") == 0)
-        return ref_by_formatted_id(type, idstring.split("|")[1])
+      if (idstring.class == String)
+        return idstring if idstring.index("http") == 0
+        return ref_by_formatted_id(type, idstring.split("|")[1]) if idstring.index("FormattedID") == 0
       end
       make_read_url(type, idstring)
     end
@@ -387,13 +389,55 @@ module RallyAPI
     end
 
     def make_ref_fields(fields)
-      fields.each do |key,val|
-        if (val.class == RallyObject)
-          fields[key] = val.getref
-        end
+      fields.each do |key, val|
+        fields[key] = make_ref_field(val)
       end
       fields
     end
+
+    def make_ref_field(val)
+      return val.getref if val.kind_of? RallyObject
+      return val if val.kind_of? Hash
+      return val if val.is_a?(Hash)
+
+      if val.kind_of? Enumerable
+        return val.collect do |collection_element|
+          if collection_element.kind_of? RallyObject
+            {"_type" => collection_element.type, "_ref" => collection_element.getref}
+          else
+            collection_element
+          end
+        end
+      end
+
+      val
+    end
+
+    def self.fix_case(values)
+      values.inject({}) do |new_values, (key, value)|
+        new_values[camel_case_word(key)] = value.is_a?(Hash) ? fix_case(value) : value
+        new_values
+      end
+    end
+
+    def self.camel_case_word(sym)
+      word = sym.to_s
+
+      if word.start_with? ("c_")
+        custom_field_without_c = word.sub("c_", "")
+        camelized = camelize(custom_field_without_c)
+        camelized[0] = custom_field_without_c[0]
+        "c_#{camelized}"
+      else
+        camelize(word)
+      end
+    end
+
+    #implemented basic version here to not have to include ActiveSupport
+    def self.camelize(str)
+      str.split('_').map {|w| w.capitalize}.join
+    end
+
 
   end
 
