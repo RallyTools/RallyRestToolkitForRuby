@@ -137,7 +137,7 @@ module RallyAPI
     # you can get a field the old way with an underscored field name or the upcase name
     def method_missing(sym, *args)
       ret_val = get_val(sym.to_s)
-      if @rally_rest.rally_rest_api_compat && ret_val.nil?
+      if ret_val.nil? && @rally_rest.rally_rest_api_compat
         ret_val = get_val(camel_case_word(sym))
       end
       ret_val
@@ -194,10 +194,10 @@ module RallyAPI
 
     def make_object_array(field)
       object_array = []
-      rally_object[field].each do |rally_obj|
+      @rally_object[field].each do |rally_obj|
         object_array.push(RallyObject.new(@rally_rest, rally_obj))
       end
-      rally_object[field] = object_array
+      @rally_object[field] = RallyCollection.new(object_array)
     end
 
   end
