@@ -53,6 +53,15 @@ module RallyAPI
       length == 0
     end
 
+    def push(item)
+      item = RallyObject.new(@rally_rest, item) if item.is_a?(Hash)
+      @results.push(item)
+    end
+
+    def <<(item)
+      push(item)
+    end
+
   end
 
 end
