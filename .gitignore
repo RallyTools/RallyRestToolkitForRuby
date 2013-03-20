@@ -3,6 +3,7 @@ RallyAPIcredentials*
 
 #.ideas is from RubyMine
 .idea
+*.iml
 
 #code coverage reports from simplecov
 coverage/
