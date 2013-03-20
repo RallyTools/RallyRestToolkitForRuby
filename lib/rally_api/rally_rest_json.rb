@@ -183,14 +183,13 @@ module RallyAPI
       json_response[rally_type]
     end
 
-    def update(type, obj_id, fields)
+    def update(type, obj_id, fields, params = nil)
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
-      json_update = { type.to_s => make_ref_fields(fields) }
-      args = { :method => :post, :payload => json_update }
-      #json_response = @rally_connection.update_object(ref, args, json_update)
-      json_response = @rally_connection.send_request(ref, args)
+      json_update = {type.to_s => make_ref_fields(fields)}
+      args = {:method => :post, :payload => json_update}
+      json_response = @rally_connection.send_request(ref, args, params)
       #todo check for warnings on json_response["OperationResult"]
       RallyObject.new(self, reread({"_ref" => ref}))
     end
