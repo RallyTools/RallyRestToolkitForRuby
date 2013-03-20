@@ -93,4 +93,20 @@ describe "Rally Json Update Tests" do
     bottom_story["ObjectID"].should == @test_story["ObjectID"]
   end
 
+  it "should do rank to with params on a plain update" do
+    defect_hash = {}
+    defect_hash["Severity"] = "Major Problem"
+    params = {:rankTo => "BOTTOM"}
+    updated_defect = @rally.update(:defect, @test_defect.ObjectID, defect_hash, params)
+    updated_defect.Severity.should == "Major Problem"
+    bottom_defects = @rally.find do |q|
+      q.type = :defect
+      q.order = "Rank Desc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+    bottom_defects[0]["ObjectID"].should == @test_defect["ObjectID"]
+  end
+
 end
