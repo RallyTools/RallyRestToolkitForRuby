@@ -49,4 +49,16 @@ describe "Rally Json Create Tests" do
     lambda { new_de.read }.should raise_exception(/Error on request -/)
   end
 
+  it "should create a user from a basic hash" do
+    user_name = "user1@company.com"
+
+    obj = {}
+    obj["UserName"] = user_name.downcase
+    obj["EmailAddress"] = user_name.downcase
+
+    new_user = nil
+    new_user = @rally.create(:user, obj)
+    new_user.UserName.should == obj["UserName"]
+  end
+
 end

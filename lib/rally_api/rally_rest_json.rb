@@ -141,9 +141,12 @@ module RallyAPI
         fields["Project"] = @rally_default_project._ref unless @rally_default_project.nil?
       end
 
-      ws_ref = fields["Workspace"]
-      ws_ref = ws_ref["_ref"] unless ws_ref.class == String || ws_ref.nil?
-      params = { :workspace => ws_ref }
+      # Assign Workspace attribute to create unless it's a user (which doesn't have a workspace attribute)
+      if type != :user
+        ws_ref = fields["Workspace"]
+        ws_ref = ws_ref["_ref"] unless ws_ref.class == String || ws_ref.nil?
+        params = { :workspace => ws_ref }
+      end
 
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
       object2create = { type => make_ref_fields(fields) }
@@ -158,7 +161,12 @@ module RallyAPI
     def read(type, obj_id, params = {})
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
-      params[:workspace] = @rally_default_workspace.ref if params[:workspace].nil?
+
+      # Assign Workspace attribute to read unless it's a user (which doesn't have a workspace attribute)
+      if type != :user
+        params[:workspace] = @rally_default_workspace.ref if params[:workspace].nil?
+      end
+
       args = { :method => :get }
       json_response = @rally_connection.send_request(ref, args, params)
       rally_type = json_response.keys[0]
