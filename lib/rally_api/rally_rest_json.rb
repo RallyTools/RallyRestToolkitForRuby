@@ -134,7 +134,7 @@ module RallyAPI
     end
 
 
-    def create(type, fields)
+    def create(type, fields, params = {})
       type = check_type(type)
       if (fields["Workspace"].nil? && fields["Project"].nil?)
         fields["Workspace"] = @rally_default_workspace._ref unless @rally_default_workspace.nil?
@@ -143,7 +143,7 @@ module RallyAPI
 
       ws_ref = fields["Workspace"]
       ws_ref = ws_ref["_ref"] unless ws_ref.class == String || ws_ref.nil?
-      params = { :workspace => ws_ref }
+      params[:workspace] = ws_ref
 
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
       object2create = { type => make_ref_fields(fields) }
