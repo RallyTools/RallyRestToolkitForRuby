@@ -49,4 +49,20 @@ describe "Rally Json Create Tests" do
     lambda { new_de.read }.should raise_exception(/Error on request -/)
   end
 
+  it "should create with params to rank to bottom" do
+    defect_hash = {"Name" => "Test Defect bottom ranked - created #{DateTime.now()}"}
+    defect_hash["Severity"] = "Major Problem"
+    params = {:rankTo => "BOTTOM"}
+    new_defect = @rally.create(:defect, defect_hash, params)
+    new_defect.Severity.should == "Major Problem"
+    bottom_defects = @rally.find do |q|
+      q.type = :defect
+      q.order = "Rank Desc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+    bottom_defects[0]["ObjectID"].should == new_defect["ObjectID"]
+  end
+
 end
