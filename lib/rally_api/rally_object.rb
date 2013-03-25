@@ -19,9 +19,9 @@ module RallyAPI
       @rally_rest = rally_rest
     end
 
-    def update(fields)
+    def update(fields, params = nil)
       oid = @rally_object["ObjectID"] || @rally_object["_ref"].split("/")[-1].split(".")[0]
-      @rally_object = @rally_rest.update(@type.downcase.to_sym, oid, fields).rally_object
+      @rally_object = @rally_rest.update(@type.downcase.to_sym, oid, fields, params).rally_object
     end
 
     def to_s(*args)
