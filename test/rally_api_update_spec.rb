@@ -107,6 +107,16 @@ describe "Rally Json Update Tests" do
       q.fetch = "Name,Rank,ObjectID"
     end
     bottom_defects[0]["ObjectID"].should == @test_defect["ObjectID"]
+
+    @test_defect.update({ "Notes"=>"Added notes"}, {:rankTo => "TOP"})
+    top_defects = @rally.find do |q|
+      q.type = :defect
+      q.order = "Rank Asc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+    top_defects[0]["ObjectID"].should == @test_defect["ObjectID"]
   end
 
 end
