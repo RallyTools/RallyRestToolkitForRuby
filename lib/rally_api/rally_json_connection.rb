@@ -124,6 +124,22 @@ module RallyAPI
       json_obj
     end
 
+    def check_for_errors(result)
+      errors = []
+      warnings = []
+      if !result["OperationResult"].nil?
+        errors    = result["OperationResult"]["Errors"]
+        warnings  = result["OperationResult"]["Warnings"]
+      elsif !result["QueryResult"].nil?
+        errors    = result["QueryResult"]["Errors"]
+        warnings  = result["QueryResult"]["Warnings"]
+      elsif !result["CreateResult"].nil?
+        errors    = result["CreateResult"]["Errors"]
+        warnings  = result["CreateResult"]["Warnings"]
+      end
+      {:errors => errors, :warnings => warnings}
+    end
+
     private
 
     def run_threads(query_array)
@@ -157,22 +173,6 @@ module RallyAPI
       return unless @low_debug
       puts message if @logger.nil?
       @logger.debug(message) unless @logger.nil?
-    end
-
-    def check_for_errors(result)
-      errors = []
-      warnings = []
-      if !result["OperationResult"].nil?
-        errors    = result["OperationResult"]["Errors"]
-        warnings  = result["OperationResult"]["Warnings"]
-      elsif !result["QueryResult"].nil?
-        errors    = result["QueryResult"]["Errors"]
-        warnings  = result["QueryResult"]["Warnings"]
-      elsif !result["CreateResult"].nil?
-        errors    = result["CreateResult"]["Errors"]
-        warnings  = result["CreateResult"]["Warnings"]
-      end
-      {:errors => errors, :warnings => warnings}
     end
 
   end

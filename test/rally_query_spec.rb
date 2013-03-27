@@ -193,6 +193,22 @@ describe "Rally Query Tests" do
     query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
   end
 
+  it "should have warnings on the query result" do
+    #API status is Deprecated and will become Not Supported on
+    current_wsapi = @rally.wsapi_version
+    @rally.wsapi_version = "1.37"
+    query_result = @rally.find do |query|
+      query.type = :story
+      query.fetch = "Name"
+      query.page_size = 50
+      query.limit = 100
+      query.query_string = "(Name contains \"#{@base_name.to_s}\")"
+    end
+    query_result.warnings.should_not be_nil
+    query_result.warnings[0].should include("API status is Deprecated and will become Not Supported on")
+    @rally.wsapi_version = current_wsapi
+  end
+
   it "should change threads safely" do
     @rally.adjust_find_threads(1)
     @rally.rally_connection.find_threads.should == 1

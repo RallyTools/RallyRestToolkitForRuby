@@ -65,4 +65,16 @@ describe "Rally Json Create Tests" do
     bottom_defects[0]["ObjectID"].should == new_defect["ObjectID"]
   end
 
+  it "should get warnings on create" do
+    current_wsapi = @rally.wsapi_version
+    @rally.wsapi_version = "1.37"
+    obj = {}
+    obj["Name"] = "Test Defect created #{DateTime.now()} - wsapi warning check"
+    new_de = @rally.create(:defect, obj)
+    new_de.Name.should == obj["Name"]
+    new_de.warnings.should_not be_nil
+    new_de.warnings[0].should include("API status is Deprecated and will become Not Supported on")
+    @rally.wsapi_version = current_wsapi
+  end
+
 end

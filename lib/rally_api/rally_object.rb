@@ -11,12 +11,13 @@ module RallyAPI
   #
   class RallyObject
 
-    attr_reader :rally_object, :type
+    attr_reader :rally_object, :type, :warnings
 
-    def initialize(rally_rest, json_hash)
+    def initialize(rally_rest, json_hash, warnings = {})
       @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
       @rally_object = json_hash
       @rally_rest = rally_rest
+      @warnings = warnings[:warnings]
     end
 
     def update(fields, params = nil)

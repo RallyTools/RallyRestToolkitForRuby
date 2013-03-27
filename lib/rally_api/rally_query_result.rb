@@ -8,12 +8,13 @@ module RallyAPI
   class RallyQueryResult
     include Enumerable
 
-    attr_reader :results, :total_result_count
+    attr_reader :results, :total_result_count, :warnings
 
-    def initialize(rally_rest, json_results)
+    def initialize(rally_rest, json_results, warnings={})
       @results            = json_results["QueryResult"]["Results"]
       @total_result_count = json_results["QueryResult"]["TotalResultCount"]
       @rally_rest         = rally_rest
+      @warnings           = warnings[:warnings]
     end
 
     def each

@@ -130,7 +130,7 @@ module RallyAPI
       args = { :method => :get }
       json_response = @rally_connection.send_request(make_get_url("user"), args)
       rally_type = json_response.keys[0]
-      RallyObject.new(self, json_response[rally_type])
+      RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
 
 
@@ -151,7 +151,7 @@ module RallyAPI
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
       json_response = @rally_connection.send_request(make_create_url(type), args, params)
       #todo - check for warnings
-      RallyObject.new(self, json_response["CreateResult"]["Object"]).read()
+      RallyObject.new(self, json_response["CreateResult"]["Object"], warnings(json_response)).read()
     end
 
 
@@ -162,7 +162,7 @@ module RallyAPI
       args = { :method => :get }
       json_response = @rally_connection.send_request(ref, args, params)
       rally_type = json_response.keys[0]
-      RallyObject.new(self, json_response[rally_type])
+      RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
 
     def delete(ref_to_delete)
@@ -191,7 +191,7 @@ module RallyAPI
       args = {:method => :post, :payload => json_update}
       json_response = @rally_connection.send_request(ref, args, params)
       #todo check for warnings on json_response["OperationResult"]
-      RallyObject.new(self, reread({"_ref" => ref}))
+      RallyObject.new(self, reread({"_ref" => ref}), warnings(json_response))
     end
     alias :update_ref :update
 
@@ -235,7 +235,7 @@ module RallyAPI
       query_params = query_obj.make_query_params
       args =  {:user => @rally_user, :password => @rally_password}
       json_response = @rally_connection.get_all_json_results(query_url, args, query_params, query_obj.limit)
-      RallyQueryResult.new(self, json_response)
+      RallyQueryResult.new(self, json_response, warnings(json_response))
     end
 
     def adjust_find_threads(num_threads)
@@ -252,8 +252,8 @@ module RallyAPI
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
       #update = @rally_connection.put_object(ref, args, params, json_update)
-      update = @rally_connection.send_request(ref, args, params)
-      RallyObject.new(self, update["OperationResult"]["Object"])
+      json_response = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
     #ref to object.js? rankBelow=%2Fhierarchicalrequirement%2F4624552599
@@ -264,8 +264,8 @@ module RallyAPI
       params[:fetch] = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
-      update = @rally_connection.send_request(ref, args, params)
-      RallyObject.new(self, update["OperationResult"]["Object"])
+      json_response = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
     def rank_to(ref_to_rank, location = "TOP")
@@ -275,8 +275,8 @@ module RallyAPI
       params[:fetch]  = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
-      update = @rally_connection.send_request(ref, args, params)
-      RallyObject.new(self, update["OperationResult"]["Object"])
+      json_response = @rally_connection.send_request(ref, args, params)
+      RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
     def get_typedef_for(type)
@@ -337,6 +337,10 @@ module RallyAPI
     def short_ref(long_ref)
       ref_pieces = long_ref.split("/")
       "/#{ref_pieces[-2]}/#{ref_pieces[-1].split(".js")[0]}"
+    end
+
+    def warnings(json_obj)
+      @rally_connection.check_for_errors(json_obj)
     end
 
     #check for an alias of a type - eg userstory => hierarchicalrequirement
