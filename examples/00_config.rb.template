@@ -1,0 +1,16 @@
+
+#Custom headers
+headers = RallyAPI::CustomHttpHeader.new()
+headers.name    = "Company Name"
+headers.vendor  = "Vendor Name"
+headers.version = "Version client software"
+
+# Config parameters
+@config = {}
+@config[:base_url]  = "https://trial.rallydev.com/slm"
+@config[:username]  = "user@company.com"
+@config[:password]  = "password"
+@config[:workspace] = "Workspace"
+@config[:project]   = "Project"
+@config[:headers]   = headers
+
