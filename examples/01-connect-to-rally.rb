@@ -3,8 +3,8 @@
 require 'rally_api'
 require 'pp'
 
-#Configuration for rally connection specified in 00_config.rb
-require_relative '00_config'
+#Configuration for rally connection specified in 00-config.rb
+require_relative '00-config'
 
 begin
   rally_connection = RallyAPI::RallyRestJson.new(@config)
