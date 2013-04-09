@@ -30,8 +30,8 @@
 module RallyAPI
 
   #--
-  #this contstant is here as a tradeoff of speed vs completeness- right now speed wins because it is so
-  #expensive to query typedef and read all attributes for "OBJECT" or "COLLECTION" types
+  #This constant is here as a trade off of speed vs completeness- right now speed wins because it is so
+  #expensive to query typedef and read all attributes for "OBJECT" or "COLLECTION" types.
   #++
   RALLY_REF_FIELDS = { "Subscription" => :subscription, "Workspace" => :workspace, "Project" => :project,
                        "Iteration" => :iteration, "Release" => :release, "WorkProduct" => :artifact,

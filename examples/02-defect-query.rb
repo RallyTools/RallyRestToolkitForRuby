@@ -19,7 +19,7 @@ def show_results(title,results)
 end
 
 begin
-  rally_connection = RallyAPI::RallyRestJson.new(@config)
+  rally = RallyAPI::RallyRestJson.new(@config)
 
   #
   # Get the 10 most recent defects.
@@ -33,7 +33,7 @@ begin
   defect_query.project_scope_down = true
   defect_query.order = "CreationDate Desc"
 
-  results = rally_connection.find(defect_query)
+  results = rally.find(defect_query)
   show_results("10 Most Recent Defects",results)
 
   #
@@ -49,7 +49,7 @@ begin
   defect_query.project_scope_down = true
   defect_query.order = "CreationDate Desc"
 
-  results = rally_connection.find(defect_query)
+  results = rally.find(defect_query)
   show_results("Defects created In The Last 24 Hours",results)
 
 rescue Exception=>boom

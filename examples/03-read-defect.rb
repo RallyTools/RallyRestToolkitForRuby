@@ -18,7 +18,7 @@ def show_some_values(title, defect)
 end
 
 begin
-  rally_connection = RallyAPI::RallyRestJson.new(@config)
+  rally = RallyAPI::RallyRestJson.new(@config)
 
   #
   # Get the 10 most recent defects.
@@ -32,7 +32,7 @@ begin
   defect_query.project_scope_down = true
   defect_query.order = "CreationDate Desc"
 
-  results = rally_connection.find(defect_query)
+  results = rally.find(defect_query)
 
   first_defect = results.first
   show_some_values("Defect from query where fetch of fields Name and CreationDate", first_defect)
