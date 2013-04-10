@@ -42,6 +42,23 @@ describe "Rally Custom Headers" do
     headers[:"X-RallyIntegrationVersion"].should == "2.0"
   end
 
+  it "should generate headers properly with only some of the customized info set" do
+    ch = RallyAPI::CustomHttpHeader.new({:vendor => "Vendor"})
+    headers = ch.headers
+
+    headers[:"X-RallyIntegrationName"].should == "RallyRestJsonRuby"
+    headers[:"X-RallyIntegrationVendor"].should == "Vendor"
+    headers[:"X-RallyIntegrationVersion"].should be_nil
+
+    ch = RallyAPI::CustomHttpHeader.new({:name => "Custom Name"})
+    headers = ch.headers
+
+    headers[:"X-RallyIntegrationName"].should == "Custom Name"
+    headers[:"X-RallyIntegrationVendor"].should be_nil
+    headers[:"X-RallyIntegrationVersion"].should be_nil
+  end
+
+
   it "should have basic headers with a new up of RallyJsonApi" do
     rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
     rally.rally_headers.name.should match("Rally")
