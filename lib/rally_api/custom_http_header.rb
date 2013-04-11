@@ -23,7 +23,7 @@ module RallyAPI
       @name = "RallyRestJsonRuby"
 
       if custom_vals.keys.length > 0
-        @name    = custom_vals[:name]
+        @name    = custom_vals[:name]     unless custom_vals[:name].nil?
         @version = custom_vals[:version]
         @vendor  = custom_vals[:vendor]
       end

@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency('httpclient', '>= 2.2.4')
 
   #s.files         = `git ls-files`.split("\n")
-  s.files = %w(README.rdoc Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
+  s.files = %w(README.md Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
   #s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   #s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
