@@ -29,6 +29,7 @@ module RallyAPI
       @rally_http_client.send_timeout    = 300
       @rally_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       @rally_http_client.transparent_gzip_decompression = true
+      #@rally_http_client.debug_dev = STDOUT
 
       #passed in proxy setup overrides env level proxy
       env_proxy = ENV["http_proxy"]
@@ -46,6 +47,12 @@ module RallyAPI
 
     def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
       @rally_http_client.ssl_config.verify_mode = mode
+    end
+
+    def setup_security_token(security_url)
+      json_response = send_request(security_url, { :method => :get })
+      @security_token = json_response[json_response.keys[0]]["SecurityToken"]
+      true
     end
 
     #you can have any number you want as long as it is between 1 and 4
@@ -88,10 +95,11 @@ module RallyAPI
     end
 
     #args should have :method
-    def send_request(url, args, url_params = nil)
+    def send_request(url, args, url_params = {})
       method = args[:method]
       req_args = {}
-      req_args[:query] = url_params unless url_params.nil?
+      url_params[:key] = @security_token unless @security_token.nil?
+      req_args[:query] = url_params if url_params.keys.length > 0
 
       req_headers = @rally_headers.headers
       if (args[:method] == :post) || (args[:method] == :put)
@@ -103,7 +111,7 @@ module RallyAPI
       req_args[:header] = req_headers
 
       begin
-        log_info("Rally API calling #{method} - #{url} with #{req_args}")
+        log_info("Rally API calling #{method} - #{url} with #{req_args}\n With cookies: #{@rally_http_client.cookie_manager.cookies}")
         response = @rally_http_client.request(method, url, req_args)
       rescue Exception => ex
         msg =  "RallyAPI: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"

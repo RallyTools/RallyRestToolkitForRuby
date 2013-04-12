@@ -44,11 +44,11 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.39"
+    DEFAULT_WSAPI_VERSION = "v2.0"
 
-    attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version
-    attr_accessor :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info
-    attr_accessor :rally_rest_api_compat, :logger, :rally_alias_types
+    attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
+                  :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
+                  :rally_rest_api_compat, :logger, :rally_alias_types
     attr_reader   :rally_connection
 
     def initialize(args)
@@ -72,6 +72,7 @@ module RallyAPI
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
+      @rally_connection.setup_security_token(security_url)
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
@@ -132,7 +133,6 @@ module RallyAPI
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
-
 
     def create(type, fields, params = {})
       type = check_type(type)
@@ -320,6 +320,10 @@ module RallyAPI
 
     def make_get_url(type)
       "#{@rally_url}/webservice/#{@wsapi_version}/#{type}.js"
+    end
+
+    def security_url
+      "#{@rally_url}/webservice/#{@wsapi_version}/security/authorize"
     end
 
     def make_read_url(type,oid)
