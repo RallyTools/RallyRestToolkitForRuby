@@ -183,7 +183,7 @@ module RallyAPI
       json_response[rally_type]
     end
 
-    def update(type, obj_id, fields, params = nil)
+    def update(type, obj_id, fields, params = {})
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
