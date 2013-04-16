@@ -88,13 +88,13 @@ describe "Rally Json API" do
   it "should throw a reasonable exception for a 404 URL" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:base_url] = "https://trial.rallydev.com/slm/slm"
-    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - An issue occurred/)
+    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-404/)
   end
 
   it "should throw a reasonable exception for a bad password or username" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:password] = "asdf"
-    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - An issue occurred/)
+    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-401/)
   end
 
 end

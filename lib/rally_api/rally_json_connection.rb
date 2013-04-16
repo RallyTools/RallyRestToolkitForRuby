@@ -29,6 +29,7 @@ module RallyAPI
       @rally_http_client.send_timeout    = 300
       @rally_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       @rally_http_client.transparent_gzip_decompression = true
+      #@rally_http_client.debug_dev = STDOUT
 
       #passed in proxy setup overrides env level proxy
       env_proxy = ENV["http_proxy"]
@@ -46,6 +47,23 @@ module RallyAPI
 
     def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
       @rally_http_client.ssl_config.verify_mode = mode
+    end
+
+    #[]todo - handle token expiration more gracefully  - eg handle renewing
+    def setup_security_token(security_url)
+      reset_cookies
+      begin
+        json_response = send_request(security_url, { :method => :get })
+        @security_token = json_response[json_response.keys[0]]["SecurityToken"]
+      rescue StandardError => ex
+        raise unless ex.message.include?("RallyAPI - HTTP-404") #for on-prem not on wsapi 2.x
+      end
+      true
+    end
+
+    #may be needed for session issues
+    def reset_cookies
+      @rally_http_client.cookie_manager.cookies = []
     end
 
     #you can have any number you want as long as it is between 1 and 4
@@ -88,10 +106,11 @@ module RallyAPI
     end
 
     #args should have :method
-    def send_request(url, args, url_params = nil)
+    def send_request(url, args, url_params = {})
       method = args[:method]
       req_args = {}
-      req_args[:query] = url_params unless url_params.nil?
+      url_params[:key] = @security_token unless @security_token.nil?
+      req_args[:query] = url_params if url_params.keys.length > 0
 
       req_headers = @rally_headers.headers
       if (args[:method] == :post) || (args[:method] == :put)
@@ -103,7 +122,7 @@ module RallyAPI
       req_args[:header] = req_headers
 
       begin
-        log_info("Rally API calling #{method} - #{url} with #{req_args}")
+        log_info("Rally API calling #{method} - #{url} with #{req_args}\n With cookies: #{@rally_http_client.cookie_manager.cookies}")
         response = @rally_http_client.request(method, url, req_args)
       rescue Exception => ex
         msg =  "RallyAPI: - rescued exception - #{ex.message} on request to #{url} with params #{url_params}"
@@ -113,7 +132,7 @@ module RallyAPI
 
       log_info("RallyAPI response was - #{response.inspect}")
       if response.status_code != 200
-        msg = "RallyAPI - An issue occurred (HTTP-#{response.status_code}) on request - #{url}."
+        msg = "RallyAPI - HTTP-#{response.status_code} on request - #{url}."
         msg << "\nResponse was: #{response.body}"
         raise StandardError, msg
       end
@@ -128,14 +147,14 @@ module RallyAPI
       errors = []
       warnings = []
       if !result["OperationResult"].nil?
-        errors    = result["OperationResult"]["Errors"]
-        warnings  = result["OperationResult"]["Warnings"]
+        errors    = result["OperationResult"]["Errors"] || []
+        warnings  = result["OperationResult"]["Warnings"] || []
       elsif !result["QueryResult"].nil?
-        errors    = result["QueryResult"]["Errors"]
-        warnings  = result["QueryResult"]["Warnings"]
+        errors    = result["QueryResult"]["Errors"] || []
+        warnings  = result["QueryResult"]["Warnings"] || []
       elsif !result["CreateResult"].nil?
-        errors    = result["CreateResult"]["Errors"]
-        warnings  = result["CreateResult"]["Warnings"]
+        errors    = result["CreateResult"]["Errors"] || []
+        warnings  = result["CreateResult"]["Warnings"] || []
       end
       {:errors => errors, :warnings => warnings}
     end

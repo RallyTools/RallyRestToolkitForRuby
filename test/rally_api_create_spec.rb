@@ -7,18 +7,22 @@ describe "Rally Json Create Tests" do
     @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
   end
 
-  it "should create an object from a basic hash with ref" do
-    obj = {}
+  def setup_test_defect(fields = {})
+    obj = fields
     obj["Name"] = "Test Defect created #{DateTime.now()}"
+    obj["Environment"] = "Production"
+    obj
+  end
 
+
+  it "should create an object from a basic hash with ref" do
+    obj = setup_test_defect
     new_de = @rally.create(:defect, obj)
     new_de.Name.should == obj["Name"]
   end
 
   it "should throw an exception for a create on a bad artifact type" do
-    obj = {}
-    obj["Name"] = "Test Defect created #{DateTime.now()}"
-
+    obj = setup_test_defect
     lambda { @rally.create(:bucky, obj) }.should raise_exception(StandardError, /Error on request/)
   end
 
@@ -27,7 +31,7 @@ describe "Rally Json Create Tests" do
     obj["Name"] = "Test with a link to Owner"
     obj["Owner"] = @rally.user
 
-    new_de = @rally.create(:defect, obj)
+    new_de = @rally.create(:defect, setup_test_defect(obj))
     new_de.Name.should == obj["Name"]
     new_de.Owner["_ref"].should == @rally.user["_ref"]
   end
@@ -40,9 +44,7 @@ describe "Rally Json Create Tests" do
   end
 
   it "should create an object and delete it" do
-    obj = {}
-    obj["Name"] = "Test Defect created #{DateTime.now()}"
-
+    obj = setup_test_defect
     new_de = @rally.create(:defect, obj)
     new_de.Name.should == obj["Name"]
     delete_result = new_de.delete()
@@ -50,7 +52,7 @@ describe "Rally Json Create Tests" do
   end
 
   it "should create with params to rank to bottom" do
-    defect_hash = {"Name" => "Test Defect bottom ranked - created #{DateTime.now()}"}
+    defect_hash = setup_test_defect({"Name" => "Test Defect bottom ranked - created #{DateTime.now()}"})
     defect_hash["Severity"] = "Major Problem"
     params = {:rankTo => "BOTTOM"}
     new_defect = @rally.create(:defect, defect_hash, params)
@@ -68,7 +70,7 @@ describe "Rally Json Create Tests" do
   it "should get warnings on create" do
     current_wsapi = @rally.wsapi_version
     @rally.wsapi_version = "1.37"
-    obj = {}
+    obj = setup_test_defect
     obj["Name"] = "Test Defect created #{DateTime.now()} - wsapi warning check"
     new_de = @rally.create(:defect, obj)
     new_de.Name.should == obj["Name"]

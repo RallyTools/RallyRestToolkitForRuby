@@ -10,8 +10,8 @@ describe "Rally Query Tests" do
     @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
 
     @base_name = "rally_api Test - #{Time.now}"
-    story_fields = { :Name => "#{@base_name.to_s} - #{rand()}", :Description => "Test for rally_api"}
-    defect_fields = {:Name => "#{@base_name.to_s} - #{rand()}", :State => "Submitted"}
+    story_fields  = {:Name => "#{@base_name.to_s} - #{rand()}", :Description => "Test for rally_api"}
+    defect_fields = {:Name => "#{@base_name.to_s} - #{rand()}", :State => "Submitted", :Environment => "Test"}
     3.times do
       @rally.create(:story, story_fields)
       @rally.create(:defect, defect_fields)
@@ -155,7 +155,6 @@ describe "Rally Query Tests" do
     test_query.fetch = "Name"
     test_query.page_size = 20
     test_query.limit = 100
-
     query_result = @rally.find(test_query)
     name_list = ""
     query_result.each do |story|
