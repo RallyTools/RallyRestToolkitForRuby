@@ -79,7 +79,15 @@ an artifact use the read method.  03-read-defect.rb shows that only the Name and
 Creation Date are set in RallyObjects are returned by find in this case.  After
 the read method is called on a RallyObject all of an artifact's fields are now available.
 
+### 04-create-defect.rb
+The RallyRestJson.create creates a new defect in Rally. It returns a representation of
+that new defect in a RallyObject.
 
+### 05-update-defect.rb
+Update defect example using the RallyObject.update method.
+
+### 06-update-defect.rb
+Update defect example using the RallyRestJson.update method.
 
 
 
