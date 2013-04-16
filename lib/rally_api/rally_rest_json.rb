@@ -44,7 +44,7 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "v2.0"
+    DEFAULT_WSAPI_VERSION = "1.42"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
@@ -323,7 +323,7 @@ module RallyAPI
     end
 
     def security_url
-      "#{@rally_url}/webservice/#{@wsapi_version}/security/authorize"
+      "#{@rally_url}/webservice/#{@wsapi_version}/security/authorize.js"
     end
 
     def make_read_url(type,oid)
