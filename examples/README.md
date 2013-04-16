@@ -89,7 +89,8 @@ Update defect example using the RallyObject.update method.
 ### 06-update-defect.rb
 Update defect example using the RallyRestJson.update method.
 
-
+### 07-add-discussion.rb
+Example that post discussions to Rally and then reads them back.
 
 
 
