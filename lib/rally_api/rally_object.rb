@@ -20,7 +20,7 @@ module RallyAPI
       @warnings = warnings[:warnings]
     end
 
-    def update(fields, params = nil)
+    def update(fields, params = {})
       oid = @rally_object["ObjectID"] || @rally_object["_ref"].split("/")[-1].split(".")[0]
       @rally_object = @rally_rest.update(@type.downcase.to_sym, oid, fields, params).rally_object
     end
