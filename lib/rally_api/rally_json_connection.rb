@@ -42,7 +42,7 @@ module RallyAPI
     end
 
     def set_client_user(base_url, user, password)
-      @rally_http_client.set_basic_auth(base_url, user, password)
+      @rally_http_client.set_auth(base_url, user, password)
     end
 
     def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
