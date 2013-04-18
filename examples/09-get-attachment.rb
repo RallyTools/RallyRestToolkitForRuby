@@ -53,7 +53,7 @@ def post_text_attachment(rally, artifact, file_name, text_content)
     attachment_info["Name"] = file_name
     attachment_info["ContentType"] = "text/plain"
     attachment_info["Size"] = text_content.length
-    attachment_info["Content"] = content
+    attachment_info["Content"] = content.ref
     attachment_info["Artifact"] = artifact.ref
 
     result = rally.create(:attachment, attachment_info)
