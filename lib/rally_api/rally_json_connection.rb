@@ -43,6 +43,7 @@ module RallyAPI
 
     def set_client_user(base_url, user, password)
       @rally_http_client.set_auth(base_url, user, password)
+      @rally_http_client.www_auth.basic_auth.challenge(base_url)  #force httpclient to put basic on first req to rally
     end
 
     def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
@@ -116,7 +117,7 @@ module RallyAPI
       if (args[:method] == :post) || (args[:method] == :put)
         req_headers["Content-Type"] = "application/json"
         req_headers["Accept"] = "application/json"
-        text_json =args[:payload].to_json
+        text_json = args[:payload].to_json
         req_args[:body] = text_json
       end
       req_args[:header] = req_headers
@@ -195,6 +196,5 @@ module RallyAPI
     end
 
   end
-
 
 end

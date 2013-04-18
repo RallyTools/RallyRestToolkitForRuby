@@ -233,7 +233,7 @@ module RallyAPI
 
       query_url = make_query_url(@rally_url, @wsapi_version, check_type(query_obj.type.to_s))
       query_params = query_obj.make_query_params
-      args =  {:user => @rally_user, :password => @rally_password}
+      args =  {:method => :get}
       json_response = @rally_connection.get_all_json_results(query_url, args, query_params, query_obj.limit)
       RallyQueryResult.new(self, json_response, warnings(json_response))
     end
