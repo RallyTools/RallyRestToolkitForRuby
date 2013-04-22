@@ -57,7 +57,7 @@ module RallyAPI
         json_response = send_request(security_url, { :method => :get })
         @security_token = json_response[json_response.keys[0]]["SecurityToken"]
       rescue StandardError => ex
-        raise unless ex.message.include?("RallyAPI - HTTP-404") #for on-prem not on wsapi 2.x
+        raise unless (ex.message.include?("HTTP-404") || ex.message.include?("HTTP-500")) #for on-prem not on wsapi 2.x
       end
       true
     end

@@ -28,10 +28,13 @@ require_relative "../lib/rally_api"
 
 module RallyAPISpecHelper
   path = ""
+  cred_file = "RallyAPIcredentials.txt"
+  #cred_file = "RallyAPIcredentials.onprem.txt"
+
   if (Dir.pwd.include?("test"))
-    path = "./RallyAPIcredentials.txt"
+    path = "./#{cred_file}"
   else
-    path = "./test/RallyAPIcredentials.txt"
+    path = "./test/#{cred_file}"
   end
   config = YAML.load_file(path)
 
@@ -42,6 +45,7 @@ module RallyAPISpecHelper
   TEST_SETUP[:workspace] = config["Workspace"]
   TEST_SETUP[:project]   = config["Project"]
   TEST_SETUP[:debug]     = config["Debug"]
+  TEST_SETUP[:version]   = config["Version"]
 
   EXTRA_SETUP = {}
   EXTRA_SETUP[:nondefault_ws]  = config["NonDefaultWS"]
