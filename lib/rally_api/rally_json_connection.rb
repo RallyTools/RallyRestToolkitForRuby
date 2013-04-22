@@ -110,6 +110,7 @@ module RallyAPI
     def send_request(url, args, url_params = {})
       method = args[:method]
       req_args = {}
+      url_params = {} if url_params.nil?
       url_params[:key] = @security_token unless @security_token.nil?
       req_args[:query] = url_params if url_params.keys.length > 0
 
