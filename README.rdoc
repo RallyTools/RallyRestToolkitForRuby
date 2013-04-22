@@ -1,8 +1,9 @@
-= RallyAPI (rally_api) -- a faster Rally REST api wrapper
+= RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
 
 == Description
 
 RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-client and native json parsing
+Check the examples directory for more detailed samples.
 
 == Installation
     gem install rally_api
@@ -118,8 +119,7 @@ RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-clien
     story1.rank_to_top
 
 == License/Meta
-Released under the MIT License: http://www.opensource.org/licenses/mit-license.php
-Copyright (c) 2002-2011 Rally Software Development Corp. All Rights Reserved.
+Copyright (c) 2002-2013 Rally Software Development Corp. All Rights Reserved.
 Your use of this Software is governed by the terms and conditions of the applicable Subscription Agreement
 between your company and Rally Software Development Corp.
 
