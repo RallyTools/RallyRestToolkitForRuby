@@ -15,7 +15,10 @@ Gem::Specification.new do |s|
 
   s.has_rdoc         = false
 
-  s.add_dependency('httpclient', '>= 2.3.0')
+  s.add_dependency('httpclient', '~> 2.3.0')
+  s.add_development_dependency('simplecov')
+  s.add_development_dependency('rspec')
+  s.add_development_dependency('rake')
 
   #s.files         = `git ls-files`.split("\n")
   s.files = %w(README.rdoc Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
