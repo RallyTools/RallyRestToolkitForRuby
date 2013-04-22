@@ -4,8 +4,9 @@ Complete documentation of the Rally web services api can be found at [here](http
 
 
 ## 00-config.rb Setup
-All of the scripts are configured with by requiring a file named 00-config.rb. The file
-00-config.rb.template is a sample configure file.  Create a 00-config.rb by coping
+All of the scripts are configured by requiring a file named 00-config.rb.  It
+defines a @config hash used to create a RallyRestJson object. The file
+00-config.rb.template is a sample configure file.  Create a 00-config.rb by copying
 00-config.rb.template :
 
 ```
@@ -37,9 +38,6 @@ headers.version = "1.3.9"
 
 The optional HTTP custom headers are used to
 understand usage patterns and improve Rally's products and APIs.
-
-The 00-config.rb file is required by all example scripts. It
-defines a @config hash used to create a RallyRestJson object.
 
 ## Basic Artifact Processing.
 
@@ -90,8 +88,19 @@ Update defect example using the RallyObject.update method.
 Update defect example using the RallyRestJson.update method.
 
 ### 07-add-discussion.rb
-Example that post discussions to Rally and then reads them back.
+Example that posts discussions to Rally and then reads them back.
 
+### 08-add-attachment.rb
+Example that posts attachments to Rally.  Note that the attachment content is first encoded with Base64.encode64
+and posted to Rally.  Then... the meta information along with a references that tie the attachment to the
+artifact are posted.  This example post both text data and image data. Finally the attachment file names
+are listed. The reference values could have been listed as well.
+
+### 09-get-attachment.rb
+Example that gets text file attachments from Rally.
+
+### 10-user-query.rb
+Example that queries for users.
 
 
 
