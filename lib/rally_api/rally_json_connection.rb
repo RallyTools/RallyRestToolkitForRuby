@@ -14,8 +14,8 @@ module RallyAPI
 
     DEFAULT_PAGE_SIZE = 200
 
-    attr_accessor :rally_headers, :low_debug, :logger
-    attr_reader :find_threads, :rally_http_client
+    attr_accessor :rally_headers, :low_debug
+    attr_reader :find_threads, :rally_http_client, :logger
 
     def initialize(headers, low_debug, proxy_info)
       @rally_headers = headers
@@ -60,6 +60,15 @@ module RallyAPI
         raise unless (ex.message.include?("HTTP-404") || ex.message.include?("HTTP-500")) #for on-prem not on wsapi 2.x
       end
       true
+    end
+
+    def add_security_key(keyval)
+      @security_token = keyval
+    end
+
+    def logger=(log_dev)
+      @logger = log_dev
+      @rally_http_client.debug_dev = log_dev
     end
 
     #may be needed for session issues

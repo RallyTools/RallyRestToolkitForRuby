@@ -35,7 +35,7 @@ describe "Rally Json API" do
 
   it "should take a logger on create" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
-    my_logger = double("logger")
+    my_logger = double("logger", :<< => nil)
     my_logger.should_receive(:debug).at_least(:twice)
     rally_config[:logger] = my_logger
     rally_config[:debug]  = true
@@ -44,7 +44,7 @@ describe "Rally Json API" do
 
   it "should turn off logger" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
-    my_logger = double("logger")
+    my_logger = double("logger", :<< => nil)
     my_logger.should_not_receive(:debug)
     rally_config[:logger] = my_logger
     rally_config[:debug]  = false
@@ -53,7 +53,7 @@ describe "Rally Json API" do
 
   it "should turn on logger discretely" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
-    my_logger = double("logger")
+    my_logger = double("logger", :<< => nil)
     my_logger.should_receive(:debug).exactly(2).times
     rally_config[:logger] = my_logger
     rally_config[:debug]  = false

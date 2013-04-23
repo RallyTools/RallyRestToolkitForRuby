@@ -4,5 +4,5 @@
 #of the applicable Subscription Agreement between your company and
 #Rally Software Development Corp.
 module RallyAPI
-  VERSION = "0.9.10"
+  VERSION = "0.9.11"
 end

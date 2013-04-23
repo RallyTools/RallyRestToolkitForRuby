@@ -62,6 +62,7 @@ module RallyAPI
       @wsapi_version        = args[:version]  || DEFAULT_WSAPI_VERSION
       @rally_headers        = args[:headers]  || CustomHttpHeader.new
       @proxy_info           = args[:proxy]
+      @skip_sec_key         = args[:skip_sec_key]
 
       #flag to help RallyRestAPI users to use snake case field names eg Defect.fixed_in_build vs Defect["FixedInBuild"]
       @rally_rest_api_compat  = args[:rally_rest_api_compat] || false
@@ -72,7 +73,7 @@ module RallyAPI
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
-      @rally_connection.setup_security_token(security_url)
+      @rally_connection.setup_security_token(security_url) unless @skip_sec_key
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
