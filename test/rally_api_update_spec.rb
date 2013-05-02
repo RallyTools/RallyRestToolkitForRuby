@@ -47,6 +47,13 @@ describe "Rally Json Update Tests" do
     updated_item.PlanEstimate.should == new_est
   end
 
+  it "should update directly on RallyObject and get a Rally Object back" do
+    new_desc = "New Description via update"
+    updated_de = @test_defect.update({:Description => new_desc})
+    updated_de.class.name.should == "RallyAPI::RallyObject"
+    updated_de.Description.should == new_desc
+  end
+
   it "should be able to update a PI/feature" do
     dtm = DateTime.now()
     test_feature = @rally.create("portfolioitem/feature", {:Name => "test feature for rally api - #{dtm}"})

@@ -89,7 +89,6 @@ describe "Rally Json Object Tests" do
     test_object = RallyAPI::RallyObject.new(@mock_rally, CHILD_STORY2)
     test_object["Tasks"] << {"Name" => "added task to RallyCollection", "_type" => "task"}
     test_object["Tasks"].length.should == 3
-
   end
 
 end
