@@ -1,5 +1,6 @@
 require "rspec"
 require_relative "rally_api_spec_helper"
+require "time"
 
 describe "Rally Json Create Tests" do
 
@@ -11,6 +12,7 @@ describe "Rally Json Create Tests" do
     obj = fields
     obj["Name"] = "Test Defect created #{DateTime.now()}"
     obj["Environment"] = "Production"
+    obj["TargetDate"] = Time.now
     obj
   end
 

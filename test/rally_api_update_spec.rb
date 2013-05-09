@@ -49,7 +49,7 @@ describe "Rally Json Update Tests" do
 
   it "should update directly on RallyObject and get a Rally Object back" do
     new_desc = "New Description via update"
-    updated_de = @test_defect.update({:Description => new_desc})
+    updated_de = @test_defect.update({:Description => new_desc, :TargetDate => Time.now})
     updated_de.class.name.should == "RallyAPI::RallyObject"
     updated_de.Description.should == new_desc
   end

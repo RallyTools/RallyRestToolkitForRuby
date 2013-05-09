@@ -147,7 +147,7 @@ module RallyAPI
       params[:workspace] = ws_ref
 
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
-      object2create = { type => make_ref_fields(fields) }
+      object2create = { type => check_fields(fields) }
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
       json_response = @rally_connection.send_request(make_create_url(type), args, params)
@@ -188,7 +188,7 @@ module RallyAPI
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
-      json_update = {type.to_s => make_ref_fields(fields)}
+      json_update = {type.to_s => check_fields(fields)}
       args = {:method => :post, :payload => json_update}
       json_response = @rally_connection.send_request(ref, args, params)
       #todo check for warnings on json_response["OperationResult"]
@@ -396,9 +396,12 @@ module RallyAPI
       ref.split("/")[-2]
     end
 
-    def make_ref_fields(fields)
+    def check_fields(fields)
       fields.each do |key, val|
         fields[key] = make_ref_field(val)
+        if val.class == Time
+          fields[key] = val.iso8601
+        end
       end
       fields
     end
