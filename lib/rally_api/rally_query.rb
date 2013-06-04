@@ -126,7 +126,7 @@ module RallyAPI
       @project_scope_up   = query_hash[:project_scope_up]
       @order              = query_hash[:order]
       @page_size          = query_hash[:page_size]
-      @stop_after         = query_hash[:limit]
+      @limit         = query_hash[:limit]
       @workspace      = query_hash[:workspace]
       @project        = query_hash[:project]
     end
