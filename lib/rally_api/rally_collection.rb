@@ -27,7 +27,8 @@ module RallyAPI
     end
 
     def each(&block)
-      if (block.parameters.length == 2)
+      # check for parameters method so we don't blow up on Ruby 1.8.7
+      if (block.respond_to?('parameters') && block.parameters.length == 2)
         @results.each do |record|
           block.call(record.to_s, record)
         end
