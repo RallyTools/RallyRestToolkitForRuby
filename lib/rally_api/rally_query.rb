@@ -36,6 +36,7 @@ module RallyAPI
       @limit              = 99999 if @limit.nil?
       @project_scope_up   = false if @project_scope_up.nil?
       @project_scope_down = false if @project_scope_down.nil?
+      @page_size = @limit if @page_size > @limit
       self
     end
 
@@ -118,7 +119,6 @@ module RallyAPI
 
     private
 
-    #todo if limit is smaller than pagesize - set it to limit
     def parse_query_hash(query_hash)
       @type               = query_hash[:type].to_s
       @query_string       = query_hash[:query_string]
@@ -127,9 +127,9 @@ module RallyAPI
       @project_scope_up   = query_hash[:project_scope_up]
       @order              = query_hash[:order]
       @page_size          = query_hash[:page_size]
-      @limit         = query_hash[:limit]
-      @workspace      = query_hash[:workspace]
-      @project        = query_hash[:project]
+      @limit              = query_hash[:limit]
+      @workspace          = query_hash[:workspace]
+      @project            = query_hash[:project]
     end
 
   end

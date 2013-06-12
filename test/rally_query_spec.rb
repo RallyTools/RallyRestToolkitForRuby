@@ -156,7 +156,7 @@ describe "Rally Query Tests" do
     qh = {:type => "defect", :fetch => "Name", :page_size => 5, :limit => 10 }
     test_query = RallyAPI::RallyQuery.new(qh)
     query_result = @rally.find(test_query)
-    query_result.each_with_index { |de, ind| puts "#{ind} - #{de["Name"]}"}
+    #query_result.each_with_index { |de, ind| puts "#{ind} - #{de["Name"]}"}
     query_result.length.should == 10
   end
 

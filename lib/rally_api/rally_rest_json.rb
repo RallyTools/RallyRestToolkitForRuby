@@ -73,7 +73,10 @@ module RallyAPI
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
-      @rally_connection.setup_security_token(security_url) unless @skip_sec_key
+
+      if @wsapi_version.to_s.include?("v2.") && !@skip_sec_key
+        @rally_connection.setup_security_token(security_url)
+      end
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
@@ -128,10 +131,9 @@ module RallyAPI
       nil
     end
 
-    #todo - allows passing args for fetch
-    def user
+    def user(params = {})
       args = { :method => :get }
-      json_response = @rally_connection.send_request(make_get_url("user"), args)
+      json_response = @rally_connection.send_request(make_get_url("user"), args, params)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
@@ -281,20 +283,20 @@ module RallyAPI
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
-    #todo add param to get workspace to check type for
-    def get_typedef_for(type)
+    def get_typedef_for(type, workspace = @rally_default_workspace)
       type = type.to_s if type.class == Symbol
       type = check_type(type)
       type_def_query             = RallyQuery.new()
       type_def_query.type        = "typedefinition"
+      type_def_query.workspace   = workspace
       type_def_query.fetch       = true
       type_def_query.query_string= "(TypePath = \"#{type}\")"
       type_def = find(type_def_query)
       type_def.first
     end
 
-    def get_fields_for(type)
-      type_def = get_typedef_for(type)
+    def get_fields_for(type, workspace = @rally_default_workspace)
+      type_def = get_typedef_for(type, workspace)
       return nil if type_def.nil?
       fields = {}
       type_def["Attributes"].each do |attr|

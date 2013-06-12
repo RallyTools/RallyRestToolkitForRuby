@@ -32,7 +32,8 @@ module RallyAPI
       #@rally_http_client.debug_dev = STDOUT
 
       #passed in proxy setup overrides env level proxy
-      env_proxy = ENV["http_proxy"]
+      env_proxy = ENV["http_proxy"]   #todo - this will go in the future
+      env_proxy = ENV["rally_proxy"] if env_proxy.nil?
       if (!env_proxy.nil?) && (proxy_info.nil?)
         @rally_http_client.proxy = env_proxy
       end
