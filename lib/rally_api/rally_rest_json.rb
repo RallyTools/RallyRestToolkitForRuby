@@ -128,6 +128,7 @@ module RallyAPI
       nil
     end
 
+    #todo - allows passing args for fetch
     def user
       args = { :method => :get }
       json_response = @rally_connection.send_request(make_get_url("user"), args)
@@ -280,6 +281,7 @@ module RallyAPI
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
+    #todo add param to get workspace to check type for
     def get_typedef_for(type)
       type = type.to_s if type.class == Symbol
       type = check_type(type)

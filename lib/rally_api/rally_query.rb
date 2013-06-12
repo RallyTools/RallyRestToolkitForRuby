@@ -118,6 +118,7 @@ module RallyAPI
 
     private
 
+    #todo if limit is smaller than pagesize - set it to limit
     def parse_query_hash(query_hash)
       @type               = query_hash[:type].to_s
       @query_string       = query_hash[:query_string]
