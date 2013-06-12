@@ -434,7 +434,7 @@ module RallyAPI
     def self.camel_case_word(sym)
       word = sym.to_s
 
-      if word.start_with? ("c_")
+      if word.start_with?("c_")
         custom_field_without_c = word.sub("c_", "")
         camelized = camelize(custom_field_without_c)
         camelized[0] = custom_field_without_c[0]
