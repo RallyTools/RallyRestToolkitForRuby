@@ -63,7 +63,7 @@ module RallyAPI
 
     def elements
       @rally_object.inject({}) do |elements, (key, value)|
-        if key.to_s.starts_with?("c_")
+        if key.to_s.start_with?("c_")
           key = key.to_s[2..-1]
         end
         elements[underscore(key).to_sym] = value
