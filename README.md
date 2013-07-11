@@ -4,11 +4,7 @@ Copyright (c) 2002-2013 Rally Software Development Corp. All Rights Reserved.  Y
 
 ## Warranty
 
-The Rally REST API for .NET is available on an as-is basis. 
-
-## Support
-
-Rally Software does not actively maintain this toolkit.  If you have a question or problem, we recommend posting it to Stack Overflow: http://stackoverflow.com/questions/ask?tags=rally 
+The RallyAPI gem is available on an as-is basis. 
 
 ## Introduction
 
