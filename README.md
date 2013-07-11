@@ -1,4 +1,5 @@
-== RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
+== RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API  
+
 [![Stories in Ready](http://badge.waffle.io/RallyTools/RallyRestToolkitForRuby.png)](http://waffle.io/RallyTools/RallyRestToolkitForRuby)
 
 === Description
