@@ -1,11 +1,12 @@
-= RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
+== RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
+[![Stories in Ready](http://badge.waffle.io/RallyTools/RallyRestToolkitForRuby.png)](http://waffle.io/RallyTools/RallyRestToolkitForRuby)
 
-== Description
+=== Description
 
 RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-client and native json parsing
 Check the examples directory for more detailed samples.
 
-== Installation
+=== Installation
     gem install rally_api
 
 == Usage
