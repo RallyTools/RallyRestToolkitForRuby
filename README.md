@@ -132,12 +132,3 @@ Making a connection to Rally
     story1.rank_below(story2)
     story1.rank_to_bottom
     story1.rank_to_top
-
-
-## License
-
-Copyright (c) 2002-2013 Rally Software Development Corp. All Rights Reserved.  Your use of this Software is governed by the terms and conditions of the applicable Subscription Agreement between your company and Rally Software Development Corp.
-
-## Warranty
-
-The RallyAPI gem is available on an as-is basis.
