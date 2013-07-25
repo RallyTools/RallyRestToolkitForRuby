@@ -14,7 +14,12 @@ module RallyAPI
     attr_reader :rally_object, :type, :warnings
 
     def initialize(rally_rest, json_hash, warnings = {})
-      @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
+      # handle that we might not get a _ref or a _type
+      if !json_hash["_type"].nil? || !json_hash["_ref"].nil?
+        @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
+      else
+        @type = "unknown"
+      end
       @rally_object = json_hash
       @rally_rest = rally_rest
       @warnings = warnings[:warnings]
