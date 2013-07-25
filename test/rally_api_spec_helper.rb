@@ -25,6 +25,7 @@ require_relative "../lib/rally_api"
 #Debug:     false
 #NonDefaultWS:  NonDefaultWorkspace
 #CustomPIType:  CustomType
+#WebLinkFieldName: CustomField
 
 module RallyAPISpecHelper
   path = ""
@@ -50,4 +51,5 @@ module RallyAPISpecHelper
   EXTRA_SETUP = {}
   EXTRA_SETUP[:nondefault_ws]  = config["NonDefaultWS"]
   EXTRA_SETUP[:custom_pi_type] = config["CustomPIType"]
+  EXTRA_SETUP[:weblink_field_name] = config["WebLinkFieldName"]
 end
