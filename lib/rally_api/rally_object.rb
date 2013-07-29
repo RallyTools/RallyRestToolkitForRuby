@@ -191,7 +191,7 @@ module RallyAPI
     end
 
     def read_collection(collection)
-      results = @rally_rest.reread(collection)["Results"]
+      results = @rally_rest.read_collection(collection, {:pagesize => 200})["Results"]
       RallyCollection.new(results.collect { |object| RallyObject.new(@rally_rest, object) })
     end
 

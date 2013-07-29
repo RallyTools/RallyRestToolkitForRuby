@@ -187,6 +187,18 @@ module RallyAPI
       json_response[rally_type]
     end
 
+    def read_collection(collection_hash, params = {})
+      collection_count = collection_hash['Count']
+      start = 1
+      pagesize = params[:pagesize] || 200
+      full_collection = []
+      start.step(collection_count, pagesize).each do |page_start|
+        page = reread(collection_hash, {:pagesize => 200, :startindex => page_start})
+        full_collection.concat(page["Results"])
+      end
+      {"Results" => full_collection}
+    end
+
     def update(type, obj_id, fields, params = {})
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
