@@ -9,7 +9,7 @@ Feature: example 01
   Scenario: Create a rally connection
     Given a config file "00-config.rb"
     When I create RallyRestJson
-    Then I should see the Rally API version number of "0.9.14"
+    Then I should see the Rally API version number of "0.9.20"
 
   Scenario: Run the 01-connect-to-rally.rb
     Given that "00-config.rb" exists in the examples directory
@@ -19,4 +19,4 @@ Feature: example 01
   Scenario: Check the output of 01-connect-to-rally.rb
     Given that "00-config.rb" exists in the examples directory
     When I run `01-connect-to-rally.rb`
-    Then the output should contain "0.9.14"
+    Then the output should contain "0.9.20"
