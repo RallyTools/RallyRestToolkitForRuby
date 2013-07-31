@@ -49,10 +49,10 @@ module RallyAPI
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
                   :rally_rest_api_compat, :logger, :rally_alias_types
-    attr_reader   :rally_connection
+    attr_reader   :rally_connection, :custom_fields_for_type
 
     def initialize(args)
-      @rally_alias_types     = { "story" => "HierarchicalRequirement", "userstory" => "HierarchicalRequirement" }
+      pre_init()
 
       @rally_url            = args[:base_url] || "https://rally1.rallydev.com/slm"
       @rally_user           = args[:username]
@@ -319,8 +319,8 @@ module RallyAPI
     end
 
     #todo - check support for portfolio item fields
-    def allowed_values(type, field)
-      type_def = get_typedef_for(type)
+    def allowed_values(type, field, workspace = @rally_default_workspace)
+      type_def = get_typedef_for(type, workspace)
       allowed_vals = {}
       type_def["Attributes"].each do |attr|
         next if attr["ElementName"] != field
@@ -333,7 +333,27 @@ module RallyAPI
       allowed_vals
     end
 
+    def custom_fields_for(type, workspace = @rally_default_workspace)
+      @custom_fields_for_type[workspace.ObjectID] = {} if @custom_fields_for_type[workspace.ObjectID].nil?
+      if @custom_fields_for_type[workspace.ObjectID][type].nil?
+        @custom_fields_for_type[workspace.ObjectID][type] = {}
+        type_def = get_typedef_for(type, workspace)
+        type_def["Attributes"].each do |attr|
+          next if attr["Custom"].to_s == "false"
+          elem_name = attr["ElementName"]
+          elem_name = elem_name.slice(2..256) unless @wsapi_version.start_with?("1")
+          @custom_fields_for_type[workspace.ObjectID][type][elem_name] = attr["ElementName"]
+        end
+      end
+      return @custom_fields_for_type[workspace.ObjectID][type]
+    end
+
     private
+
+    def pre_init()
+      @rally_alias_types      = { "story" => "HierarchicalRequirement", "userstory" => "HierarchicalRequirement" }
+      @custom_fields_for_type = {}
+    end
 
     def make_get_url(type)
       "#{@rally_url}/webservice/#{@wsapi_version}/#{type}.js"

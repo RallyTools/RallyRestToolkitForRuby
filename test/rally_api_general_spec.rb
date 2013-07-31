@@ -94,4 +94,9 @@ describe "Rally API specific artifact tests" do
     fields["as;dfklasdf"].should be_nil
   end
 
+  it "should get the custom fields for defects" do
+    custom_fields = @rally.custom_fields_for("defect")
+    custom_fields.should_not be_nil
+  end
+
 end
