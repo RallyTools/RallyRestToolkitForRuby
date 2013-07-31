@@ -89,12 +89,14 @@ describe "Rally Query Tests" do
 
   it "should make a query from a hash" do
     qh = {}
-    qh[:type] = :defect
+    limit = 20
+    qh[:type]  = :defect
     qh[:fetch] = "Name"
+    qh[:limit] = limit
 
     test_query = RallyAPI::RallyQuery.new(qh)
-
-    test_query.type.should == "defect"
+    test_query.type.should  == "defect"
+    test_query.limit.should == limit
   end
 
   it "should make a query and allow setting type by property" do
@@ -124,7 +126,7 @@ describe "Rally Query Tests" do
     lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
   end
 
-  it "should throw an error for a bad query pagesize or stop after" do
+  it "should throw an error for a bad query pagesize or limit" do
     test_query = RallyAPI::RallyQuery.new()
     test_query.type = :defect
     test_query.fetch = "Name"
@@ -147,6 +149,15 @@ describe "Rally Query Tests" do
     query_result.total_result_count.should == 3
 
     query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
+  end
+
+  #note -this test assumes a workspace with more than 10 defects
+  it "find should work with small limits and pagesize" do
+    qh = {:type => "defect", :fetch => "Name", :page_size => 5, :limit => 10 }
+    test_query = RallyAPI::RallyQuery.new(qh)
+    query_result = @rally.find(test_query)
+    #query_result.each_with_index { |de, ind| puts "#{ind} - #{de["Name"]}"}
+    query_result.length.should == 10
   end
 
   it "should loop over more than a page of query results" do

@@ -1,16 +1,31 @@
-= RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
+## License
 
-== Description
+Copyright (c) Rally Software Development Corp. 2013 Distributed under the MIT License.
+
+## Warranty
+
+The Ruby Toolkit for Rally REST API is available on an as-is basis. 
+
+## Support
+
+Rally Software does not actively maintain this toolkit.  If you have a question or problem, we recommend posting it to Stack Overflow: http://stackoverflow.com/questions/ask?tags=rally 
+
+## Introduction
+
+RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API  
+
+[![Stories in Ready](http://badge.waffle.io/RallyTools/RallyRestToolkitForRuby.png)](http://waffle.io/RallyTools/RallyRestToolkitForRuby)
 
 RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-client and native json parsing
 Check the examples directory for more detailed samples.
 
-== Installation
-    gem install rally_api
+### Installation
 
-== Usage
+gem install rally_api
 
-=== Making a connection to Rally
+### Usage
+
+Making a connection to Rally
     require 'rally_api'
 
     #Setting custom headers
@@ -32,7 +47,7 @@ Check the examples directory for more detailed samples.
     @rally = RallyAPI::RallyRestJson.new(config)
 
 
-=== Querying Rally
+### Querying Rally
 
     #type names are stored in rally.rally_objects hash, you can inspect there for a list
     #Look at the TypePath for all typedefs and this is the key to each hash.
@@ -69,7 +84,7 @@ Check the examples directory for more detailed samples.
     end
 
 
-=== Reading an Artifact
+### Reading an Artifact
     defect = @rally.read("defect", 12345)      #by ObjectID
     #or
     defect = @rally.read("defect", "FormattedID|DE42")      #by FormattedID
@@ -89,13 +104,13 @@ Check the examples directory for more detailed samples.
     #  This is done for speed - lazy loading (going back to get a value from Rally) can be unneccessarily slow
     #  *Pick you fetch strings wisely* fetch everything you need and don't rely on read if you don't need it the speed is worth it.
 
-=== Creating an Artifact
+### Creating an Artifact
     obj = {}
     obj["Name"] = "Test Defect created #{DateTime.now()}"
     new_de = @rally.create("defect", obj)
     puts new_de["FormattedID"]
 
-=== Updating an Artifact
+### Updating an Artifact
     fields = {}
     fields["Severity"] = "Critical"
     fields["Description"] = "Description for the issue"
@@ -107,7 +122,7 @@ Check the examples directory for more detailed samples.
     field_updates = {"Description" => "Changed Description"}
     defect.update(field_updates)
 
-=== Utils
+### Utils
     #allowed values:  pass the Artifact type string or downcased symbol and the Display Name of the field
     @rally.allowed_values("Defect", "Severity")
     @rally.allowed_values("story", "ScheduleState")
@@ -117,9 +132,3 @@ Check the examples directory for more detailed samples.
     story1.rank_below(story2)
     story1.rank_to_bottom
     story1.rank_to_top
-
-== License/Meta
-Copyright (c) 2002-2013 Rally Software Development Corp. All Rights Reserved.
-Your use of this Software is governed by the terms and conditions of the applicable Subscription Agreement
-between your company and Rally Software Development Corp.
-

@@ -14,7 +14,12 @@ module RallyAPI
     attr_reader :rally_object, :type, :warnings
 
     def initialize(rally_rest, json_hash, warnings = {})
-      @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
+      # handle that we might not get a _ref or a _type
+      if !json_hash["_type"].nil? || !json_hash["_ref"].nil?
+        @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
+      else
+        @type = "unknown"
+      end
       @rally_object = json_hash
       @rally_rest = rally_rest
       @warnings = warnings[:warnings]
@@ -63,7 +68,7 @@ module RallyAPI
 
     def elements
       @rally_object.inject({}) do |elements, (key, value)|
-        if key.to_s.starts_with?("c_")
+        if key.to_s.start_with?("c_")
           key = key.to_s[2..-1]
         end
         elements[underscore(key).to_sym] = value
@@ -186,7 +191,7 @@ module RallyAPI
     end
 
     def read_collection(collection)
-      results = @rally_rest.reread(collection)["Results"]
+      results = @rally_rest.read_collection(collection, {:pagesize => 200})["Results"]
       RallyCollection.new(results.collect { |object| RallyObject.new(@rally_rest, object) })
     end
 

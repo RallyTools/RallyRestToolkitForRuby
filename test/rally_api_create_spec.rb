@@ -37,6 +37,21 @@ describe "Rally Json Create Tests" do
     new_de.Name.should == obj["Name"]
     new_de.Owner["_ref"].should == @rally.user["_ref"]
   end
+  
+  it "should create with a web link field" do
+    weblink_field_name = RallyAPISpecHelper::EXTRA_SETUP[:weblink_field_name]
+    if !weblink_field_name.nil?
+      obj = {}
+      obj["Name"] = "Test with a weblink"
+      obj[weblink_field_name] = {
+        "LinkID"=>"123", "DisplayString"=>"The Label"
+      }
+      new_de = @rally.create(:defect, setup_test_defect(obj))
+      new_de.Name.should == obj["Name"]
+      new_de[weblink_field_name]["LinkID"].should == "123"
+      new_de[weblink_field_name]["DisplayString"].should == "The Label"
+    end
+  end
 
   it "should raise an error on create if a field is required" do
     obj = {}

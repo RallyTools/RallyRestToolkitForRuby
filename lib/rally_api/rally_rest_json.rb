@@ -49,10 +49,10 @@ module RallyAPI
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
                   :rally_rest_api_compat, :logger, :rally_alias_types
-    attr_reader   :rally_connection
+    attr_reader   :rally_connection, :custom_fields_for_type
 
     def initialize(args)
-      @rally_alias_types     = { "story" => "HierarchicalRequirement", "userstory" => "HierarchicalRequirement" }
+      pre_init()
 
       @rally_url            = args[:base_url] || "https://rally1.rallydev.com/slm"
       @rally_user           = args[:username]
@@ -73,7 +73,10 @@ module RallyAPI
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
       @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
       @rally_connection.logger  = @logger unless @logger.nil?
-      @rally_connection.setup_security_token(security_url) unless @skip_sec_key
+
+      if @wsapi_version.to_s.include?("v2.") && !@skip_sec_key
+        @rally_connection.setup_security_token(security_url)
+      end
 
       if !@rally_workspace_name.nil?
         @rally_default_workspace = find_workspace(@rally_workspace_name)
@@ -128,9 +131,9 @@ module RallyAPI
       nil
     end
 
-    def user
+    def user(params = {})
       args = { :method => :get }
-      json_response = @rally_connection.send_request(make_get_url("user"), args)
+      json_response = @rally_connection.send_request(make_get_url("user"), args, params)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
@@ -182,6 +185,18 @@ module RallyAPI
       json_response = @rally_connection.send_request(json_object["_ref"], args, params)
       rally_type = json_response.keys[0]
       json_response[rally_type]
+    end
+
+    def read_collection(collection_hash, params = {})
+      collection_count = collection_hash['Count']
+      start = 1
+      pagesize = params[:pagesize] || 200
+      full_collection = []
+      start.step(collection_count, pagesize).each do |page_start|
+        page = reread(collection_hash, {:pagesize => 200, :startindex => page_start})
+        full_collection.concat(page["Results"])
+      end
+      {"Results" => full_collection}
     end
 
     def update(type, obj_id, fields, params = {})
@@ -280,19 +295,20 @@ module RallyAPI
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
-    def get_typedef_for(type)
+    def get_typedef_for(type, workspace = @rally_default_workspace)
       type = type.to_s if type.class == Symbol
       type = check_type(type)
       type_def_query             = RallyQuery.new()
       type_def_query.type        = "typedefinition"
+      type_def_query.workspace   = workspace
       type_def_query.fetch       = true
       type_def_query.query_string= "(TypePath = \"#{type}\")"
       type_def = find(type_def_query)
       type_def.first
     end
 
-    def get_fields_for(type)
-      type_def = get_typedef_for(type)
+    def get_fields_for(type, workspace = @rally_default_workspace)
+      type_def = get_typedef_for(type, workspace)
       return nil if type_def.nil?
       fields = {}
       type_def["Attributes"].each do |attr|
@@ -303,8 +319,8 @@ module RallyAPI
     end
 
     #todo - check support for portfolio item fields
-    def allowed_values(type, field)
-      type_def = get_typedef_for(type)
+    def allowed_values(type, field, workspace = @rally_default_workspace)
+      type_def = get_typedef_for(type, workspace)
       allowed_vals = {}
       type_def["Attributes"].each do |attr|
         next if attr["ElementName"] != field
@@ -317,7 +333,27 @@ module RallyAPI
       allowed_vals
     end
 
+    def custom_fields_for(type, workspace = @rally_default_workspace)
+      @custom_fields_for_type[workspace.ObjectID] = {} if @custom_fields_for_type[workspace.ObjectID].nil?
+      if @custom_fields_for_type[workspace.ObjectID][type].nil?
+        @custom_fields_for_type[workspace.ObjectID][type] = {}
+        type_def = get_typedef_for(type, workspace)
+        type_def["Attributes"].each do |attr|
+          next if attr["Custom"].to_s == "false"
+          elem_name = attr["ElementName"]
+          elem_name = elem_name.slice(2..256) unless @wsapi_version.start_with?("1")
+          @custom_fields_for_type[workspace.ObjectID][type][elem_name] = attr["ElementName"]
+        end
+      end
+      return @custom_fields_for_type[workspace.ObjectID][type]
+    end
+
     private
+
+    def pre_init()
+      @rally_alias_types      = { "story" => "HierarchicalRequirement", "userstory" => "HierarchicalRequirement" }
+      @custom_fields_for_type = {}
+    end
 
     def make_get_url(type)
       "#{@rally_url}/webservice/#{@wsapi_version}/#{type}.js"
@@ -434,7 +470,7 @@ module RallyAPI
     def self.camel_case_word(sym)
       word = sym.to_s
 
-      if word.start_with? ("c_")
+      if word.start_with?("c_")
         custom_field_without_c = word.sub("c_", "")
         camelized = camelize(custom_field_without_c)
         camelized[0] = custom_field_without_c[0]
