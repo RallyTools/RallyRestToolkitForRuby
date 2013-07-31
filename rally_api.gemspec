@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency('simplecov')
   s.add_development_dependency('rspec')
   s.add_development_dependency('rake')
+  s.add_development_dependency('cucumber')
+  s.add_development_dependency('aruba')
 
   #s.files         = `git ls-files`.split("\n")
   s.files = %w(README.md Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
