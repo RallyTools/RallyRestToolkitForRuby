@@ -13,6 +13,8 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "rally_api"
 
+  s.license = 'MIT'
+
   s.has_rdoc         = false
 
   s.add_dependency('httpclient', '~> 2.3.0')
