@@ -45,4 +45,26 @@ describe "Rally Json Read Tests" do
     defect.ref.should == @test_defect.ref
   end
 
+  it "should conduct a find with a valid order" do
+    defects = @rally.find do |q|
+      q.type = :defect
+      q.order = "Rank ASC"
+    end
+  end
+
+  it "should conduct a find with an invalid order" do
+    lambda do
+      defects = @rally.find do |q|
+        q.type = :defect
+        q.order = "Invalid Order"
+      end
+    end.should raise_error(StandardError, /Cannot sort using unknown attribute Invalid/)
+  end
+
+  it "should conduct a find with an empty string order and it will not exception" do
+    defects = @rally.find do |q|
+      q.type = :defect
+      q.order = ""
+    end
+  end
 end

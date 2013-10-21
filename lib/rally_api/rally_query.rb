@@ -42,15 +42,15 @@ module RallyAPI
 
     def make_query_params
       query_params = {}
-      query_params[:query]            = @query_string
-      query_params[:fetch]            = @fetch
-      query_params[:workspace]        = @workspace["_ref"] if !@workspace.nil?
-      query_params[:project]          = @project["_ref"] if !@project.nil?
-      query_params[:projectScopeUp]   = @project_scope_up
-      query_params[:projectScopeDown] = @project_scope_down
-      query_params[:order]            = @order
-      query_params[:pagesize]         = @page_size
-      query_params[:search]           = @search
+      query_params[:query]            = @query_string         unless @query_string.nil?
+      query_params[:fetch]            = @fetch                unless @fetch.nil?
+      query_params[:workspace]        = @workspace["_ref"]    if !@workspace.nil?
+      query_params[:project]          = @project["_ref"]      if !@project.nil?
+      query_params[:projectScopeUp]   = @project_scope_up     unless @project_scope_up.nil?
+      query_params[:projectScopeDown] = @project_scope_down   unless @project_scope_down.nil?
+      query_params[:order]            = @order                unless @order.nil?
+      query_params[:pagesize]         = @page_size            unless @page_size.nil?
+      query_params[:search]           = @search               unless @search.nil?
 
       query_params
     end
