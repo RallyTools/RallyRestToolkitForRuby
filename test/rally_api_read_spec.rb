@@ -45,4 +45,32 @@ describe "Rally Json Read Tests" do
     defect.ref.should == @test_defect.ref
   end
 
+  it "should conduct a find with a valid order" do
+    defects = @rally.find do |q|
+      q.type = :defect
+      q.order = "Rank ASC"
+    end
+    defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    defects.warnings.length.should == 1
+  end
+
+  it "should conduct a find with an invalid order" do
+    lambda do
+      defects = @rally.find do |q|
+        q.type = :defect
+        q.order = "Invalid Order"
+      end
+    end.should raise_error(StandardError, /Cannot sort using unknown attribute Invalid/)
+  end
+
+  it "should conduct a find with an empty string order and it will not exception" do
+    defects = @rally.find do |q|
+      q.type = :defect
+      q.order = ""
+    end
+    defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    defects.warnings.length.should == 1
+    # Warning: No sort criteria has been defined.  The sort order will be unpredictable.
+    # Between 10/10 and 10/21
+  end
 end

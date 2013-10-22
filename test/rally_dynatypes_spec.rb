@@ -1,7 +1,7 @@
 require "rspec"
 require_relative "rally_api_spec_helper"
 
-describe "DynaType and Portfolio Item specifc tests" do
+describe "DynaType and Portfolio Item specific tests" do
 
   before :all do
     @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
@@ -13,7 +13,7 @@ describe "DynaType and Portfolio Item specifc tests" do
       q.type = :typedefinition
       q.query_string = '(Parent.Name = "Portfolio Item")'
       q.limit = 10
-      q.fetch = "ELementName,TypePath"
+      q.fetch = "ElementName,TypePath"
     end
 
     name_to_try = nil
