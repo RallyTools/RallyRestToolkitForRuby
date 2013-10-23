@@ -42,7 +42,7 @@ module RallyAPI
 
     def make_query_params
       query_params = {}
-      query_params[:query]            = @query_string         unless @query_string.nil?
+      query_params[:query]            = @query_string         # unless @query_string.nil?
       query_params[:fetch]            = @fetch                unless @fetch.nil?
       query_params[:workspace]        = @workspace["_ref"]    if !@workspace.nil?
       query_params[:project]          = @project["_ref"]      if !@project.nil?
