@@ -25,7 +25,7 @@ module RallyAPI
 # query_hash[:limit]     <br>
 
   class RallyQuery
-    attr_accessor :type, :query_string, :fetch, :workspace, :project, :project_scope_up, :project_scope_down, :search
+    attr_accessor :type, :query_string, :fetch, :workspace, :project, :project_scope_up, :project_scope_down, :search, :types
     attr_accessor :order, :page_size, :limit
 
     alias :pagesize :page_size
@@ -51,6 +51,7 @@ module RallyAPI
       query_params[:order]            = @order                unless @order.nil?
       query_params[:pagesize]         = @page_size            unless @page_size.nil?
       query_params[:search]           = @search               unless @search.nil?
+      query_params[:types]            = @types                unless @types.nil?
 
       query_params
     end

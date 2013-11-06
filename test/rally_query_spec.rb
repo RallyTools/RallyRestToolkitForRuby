@@ -72,11 +72,14 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "true"
 
+    test_query.search = "foo"
+    test_query.types = "hierarchicalrequirement,portfolioitem/feature"
+
     test_query.validate().length.should == 0
 
     params = test_query.make_query_params
 
-    params[:query].nil?.should         == true
+    params[:query].nil?.should        == true
     params[:fetch].should             == "true"
     params[:workspace].nil?.should    == true
     params[:project].nil?.should      == true
@@ -84,6 +87,8 @@ describe "Rally Query Tests" do
     params[:projectScopeDown].should  == false
     params[:order].nil?.should        == true
     params[:pagesize].should          == 200
+    params[:search].should            == "foo"
+    params[:types].should             == "hierarchicalrequirement,portfolioitem/feature"
   end
 
 
