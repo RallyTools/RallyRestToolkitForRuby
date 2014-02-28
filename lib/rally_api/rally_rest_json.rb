@@ -44,7 +44,7 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.42"
+    DEFAULT_WSAPI_VERSION = "v2.0"
 
     attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
