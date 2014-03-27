@@ -63,17 +63,58 @@ describe "Rally Json Update Tests" do
     upd["Description"].should == desc
   end
 
+  #with the new DragandDropRank - this is going to be hard
   it "should rank relative to" do
-    story1_rank = @test_story["Rank"]
-    story1_rank.should be > 0
+    top_stories1 = @rally.find do |q|
+      q.type = :story
+      q.order = "Rank Asc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
 
-    new_rank1 = @test_defect.rank_above(@test_story).Rank
-    #puts "rank1 is #{new_rank1}"
-    new_rank1.should be < story1_rank
+    story1 = top_stories1[0]
+    story2 = top_stories1[1]
 
-    new_rank2 = @test_defect.rank_below(@test_story).Rank
-    #puts "rank2 is #{new_rank2}"
-    new_rank2.should be > story1_rank
+    story2.rank_above(story1)
+    top_stories2 = @rally.find do |q|
+      q.type = :story
+      q.order = "Rank Asc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+
+    st1_found = st2_found = false
+    top_stories2.each do |story|
+      st1_found = true if story.ObjectID == story1.ObjectID
+      if story.ObjectID == story2.ObjectID
+        st2_found = true
+        break
+      end
+    end
+    st2_found.should == true
+    st1_found.should == false
+    story2.rank_below(story1)
+
+    top_stories3 = @rally.find do |q|
+      q.type = :story
+      q.order = "Rank Asc"
+      q.limit = 20
+      q.page_size = 20
+      q.fetch = "Name,Rank,ObjectID"
+    end
+
+    st1_found = st2_found = false
+    top_stories3.each do |story|
+      st2_found = true if story.ObjectID == story2.ObjectID
+      if story.ObjectID == story1.ObjectID
+        st1_found = true
+        break
+      end
+    end
+    st1_found.should == true
+    st2_found.should == false
   end
 
   it "should rank to bottom and top" do

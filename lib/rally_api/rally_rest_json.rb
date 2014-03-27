@@ -44,9 +44,9 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.42"
+    DEFAULT_WSAPI_VERSION = "1.43"
 
-    attr_accessor :rally_url, :rally_user, :rally_password, :rally_workspace_name, :rally_project_name, :wsapi_version,
+    attr_accessor :rally_url, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
                   :rally_rest_api_compat, :logger, :rally_alias_types
     attr_reader   :rally_connection, :custom_fields_for_type
@@ -54,9 +54,12 @@ module RallyAPI
     def initialize(args)
       pre_init()
 
-      @rally_url            = args[:base_url] || "https://rally1.rallydev.com/slm"
-      @rally_user           = args[:username]
-      @rally_password       = args[:password]
+      auth_info = {}
+
+      auth_info[:base_url]  = @rally_url = args[:base_url] || "https://rally1.rallydev.com/slm"
+      auth_info[:username]  = args[:username]
+      auth_info[:password]  = args[:password]
+      auth_info[:api_key]   = args[:api_key]
       @rally_workspace_name = args[:workspace]
       @rally_project_name   = args[:project]
       @wsapi_version        = args[:version]  || DEFAULT_WSAPI_VERSION
@@ -71,10 +74,11 @@ module RallyAPI
       @logger    = args[:logger] || nil    #assumes this is an instance of Logger
 
       @rally_connection = RallyJsonConnection.new(@rally_headers, @low_debug, @proxy_info)
-      @rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
+      #@rally_connection.set_client_user(@rally_url, @rally_user, @rally_password)
+      @rally_connection.set_auth(auth_info)
       @rally_connection.logger  = @logger unless @logger.nil?
 
-      if @wsapi_version.to_s.include?("v2.") && !@skip_sec_key
+      if @wsapi_version.to_s.include?("v2.") && !@skip_sec_key && auth_info[:api_key].nil?
         @rally_connection.setup_security_token(security_url)
       end
 

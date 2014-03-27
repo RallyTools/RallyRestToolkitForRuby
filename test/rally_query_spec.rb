@@ -220,7 +220,7 @@ describe "Rally Query Tests" do
       query.query_string = "(Name contains \"#{@base_name.to_s}\")"
     end
     query_result.warnings.should_not be_nil
-    query_result.warnings[0].should include("API status is Deprecated and will become Not Supported on")
+    query_result.warnings[0].should include("Please update your client to use the latest version of the API.")
     @rally.wsapi_version = current_wsapi
   end
 

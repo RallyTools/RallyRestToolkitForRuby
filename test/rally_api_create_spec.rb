@@ -92,7 +92,7 @@ describe "Rally Json Create Tests" do
     new_de = @rally.create(:defect, obj)
     new_de.Name.should == obj["Name"]
     new_de.warnings.should_not be_nil
-    new_de.warnings[0].should include("API status is Deprecated and will become Not Supported on")
+    new_de.warnings[0].should include("Please update your client to use the latest version of the API.")
     @rally.wsapi_version = current_wsapi
   end
 

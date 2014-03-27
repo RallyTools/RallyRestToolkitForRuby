@@ -42,9 +42,12 @@ module RallyAPI
       @find_threads = 4
     end
 
-    def set_client_user(base_url, user, password)
-      @rally_http_client.set_auth(base_url, user, password)
-      @rally_http_client.www_auth.basic_auth.challenge(base_url)  #force httpclient to put basic on first req to rally
+    def set_auth(auth_info)
+      if auth_info[:api_key].nil?
+        set_client_user(auth_info[:base_url], auth_info[:username], auth_info[:password])
+      else
+        set_api_key(auth_info)
+      end
     end
 
     def set_ssl_verify_mode(mode = OpenSSL::SSL::VERIFY_NONE)
@@ -124,7 +127,7 @@ module RallyAPI
       url_params[:key] = @security_token unless @security_token.nil?
       req_args[:query] = url_params if url_params.keys.length > 0
 
-      req_headers = @rally_headers.headers
+      req_headers = setup_request_headers
       if (args[:method] == :post) || (args[:method] == :put)
         req_headers["Content-Type"] = "application/json"
         req_headers["Accept"] = "application/json"
@@ -172,6 +175,25 @@ module RallyAPI
     end
 
     private
+
+    def setup_request_headers()
+      req_headers = @rally_headers.headers
+      zsession_c = @rally_http_client.cookies.find {|c| c.name == "ZSESSIONID" }
+      if !@api_key.nil? && zsession_c.nil?
+        req_headers[:zsessionid] = @api_key
+      end
+      req_headers
+    end
+
+    def set_client_user(base_url, user, password)
+      @rally_http_client.set_auth(base_url, user, password)
+      @rally_http_client.www_auth.basic_auth.challenge(base_url)  #force httpclient to put basic on first req to rally
+    end
+
+    def set_api_key(auth_info)
+      @api_key_url  = auth_info[:base_url]
+      @api_key      = auth_info[:api_key]
+    end
 
     def run_threads(query_array)
       num_threads = @find_threads
