@@ -93,6 +93,7 @@ describe "Rally Json API" do
 
   it "should throw a reasonable exception for a bad password or username" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
+    rally_config[:api_key] = nil
     rally_config[:password] = "asdf"
     lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-401/)
   end
