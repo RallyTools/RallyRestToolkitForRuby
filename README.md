@@ -46,6 +46,15 @@ Making a connection to Rally
 
     @rally = RallyAPI::RallyRestJson.new(config)
 
+    #Using api keys? -- currently rally1 only
+    Go to https://rally1.rallydev.com/login
+    You can generate an api key on this site and use it *instead* of username and password
+    config = {:base_url => "https://rally1.rallydev.com/slm"}
+    config[:api_key]   = "_your_api_key_from_https://rally1.rallydev.com/login"
+    config[:workspace]  = "Workspace Name"
+    config[:project]    = "Project Name"
+    config[:headers]    = headers #from RallyAPI::CustomHttpHeader.new()
+
 
 ### Querying Rally
 
