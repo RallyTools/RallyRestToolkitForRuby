@@ -127,14 +127,11 @@ module RallyAPI
       url_params[:key] = @security_token unless @security_token.nil?
       req_args[:query] = url_params if url_params.keys.length > 0
 
-      req_headers = setup_request_headers
+      req_args[:header] = setup_request_headers(args[:method])
       if (args[:method] == :post) || (args[:method] == :put)
-        req_headers["Content-Type"] = "application/json"
-        req_headers["Accept"] = "application/json"
         text_json = args[:payload].to_json
         req_args[:body] = text_json
       end
-      req_args[:header] = req_headers
 
       begin
         log_info("Rally API calling #{method} - #{url} with #{req_args}\n With cookies: #{@rally_http_client.cookie_manager.cookies}")
@@ -176,11 +173,12 @@ module RallyAPI
 
     private
 
-    def setup_request_headers()
+    def setup_request_headers(http_method)
       req_headers = @rally_headers.headers
-      zsession_c = @rally_http_client.cookies.find {|c| c.name == "ZSESSIONID" }
-      if !@api_key.nil? && zsession_c.nil?
-        req_headers[:zsessionid] = @api_key
+      req_headers[:ZSESSIONID] = @api_key unless @api_key.nil?
+      if (http_method == :post) || (http_method == :put)
+        req_headers["Content-Type"] = "application/json"
+        req_headers["Accept"] = "application/json"
       end
       req_headers
     end
@@ -191,8 +189,7 @@ module RallyAPI
     end
 
     def set_api_key(auth_info)
-      @api_key_url  = auth_info[:base_url]
-      @api_key      = auth_info[:api_key]
+      @api_key = auth_info[:api_key]
     end
 
     def run_threads(query_array)

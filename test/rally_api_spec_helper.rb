@@ -43,7 +43,7 @@ module RallyAPISpecHelper
   TEST_SETUP[:base_url]  = config["RallyURL"]
   TEST_SETUP[:username]  = config["Username"]
   TEST_SETUP[:password]  = config["Password"]
-  #TEST_SETUP[:api_key]   = config["API_KEY"]
+  TEST_SETUP[:api_key]   = config["API_KEY"]
   TEST_SETUP[:workspace] = config["Workspace"]
   TEST_SETUP[:project]   = config["Project"]
   TEST_SETUP[:debug]     = config["Debug"]
