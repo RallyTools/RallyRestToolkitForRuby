@@ -50,7 +50,8 @@ describe "Rally Json Read Tests" do
       q.type = :defect
       q.order = "Rank ASC"
     end
-    defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    # defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    defects.warnings.first.should match(/Please update your client to use the latest version of the API/)
     defects.warnings.length.should == 1
   end
 
@@ -68,7 +69,8 @@ describe "Rally Json Read Tests" do
       q.type = :defect
       q.order = ""
     end
-    defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    # defects.warnings.first.should match(/API status is Deprecated and will become Not Supported on/)
+    defects.warnings.first.should match(/Please update your client to use the latest version of the API/)
     defects.warnings.length.should == 1
     # Warning: No sort criteria has been defined.  The sort order will be unpredictable.
     # Between 10/10 and 10/21
