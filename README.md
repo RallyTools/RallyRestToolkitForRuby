@@ -57,7 +57,7 @@ Making a connection to Rally
 
 
 #### User Authentication
-A Rally API key can be used for user authentication. If an API Key is provided, the username and password are ignored. (This is true even if the API Key is invalid, blank, or nil.)
+A Rally API Key can be used for user authentication. If an API Key is provided, the username and password are ignored. (This is true even if the API Key is invalid, blank, or nil.)
 
 
 ### Querying Rally
