@@ -56,6 +56,10 @@ Making a connection to Rally
     config[:headers]    = headers #from RallyAPI::CustomHttpHeader.new()
 
 
+#### User Authentication
+A Rally API key can be used for user authentication. If an API Key is provided, the username and password are ignored. (This is true even if the API Key is invalid, blank, or nil.)
+
+
 ### Querying Rally
 
     #type names are stored in rally.rally_objects hash, you can inspect there for a list

@@ -2,6 +2,11 @@
 
 Complete documentation of the Rally web services api can be found at [here](https://rally1.rallydev.com/slm/doc/webservice/)
 
+## User Authentication
+A Rally API key can be used for user authentication. If an API Key is provided, the username and password are ignored. (This is true even if the API Key is invalid, blank, or nil.)
+
+
+# Example Scripts
 
 ## 00-config.rb Setup
 All of the scripts are configured by requiring a file named 00-config.rb.  It
