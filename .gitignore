@@ -17,3 +17,6 @@ rdoc
 pkg
 *.gem
 scratchpad.rb
+
+#rvmrc used to configure the gemset on a given machine
+.rvmrc
