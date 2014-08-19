@@ -56,38 +56,6 @@ module RallyAPISpecHelper
   EXTRA_SETUP[:custom_pi_type] = config["CustomPIType"]
   EXTRA_SETUP[:weblink_field_name] = config["WebLinkFieldName"]
 
-  class TestSetup
-    attr_accessor :test_setup, :extra_setup
-
-    def initialize(config_file = 'RallyAPIcredentials.txt')
-      @cred_file = config_file
-
-      if (Dir.pwd.include?("test"))
-        path = "./#{@cred_file}"
-      else
-        path = "./test/#{@cred_file}"
-      end
-      config = YAML.load_file(path)
-
-      @test_setup = {}
-      @test_setup[:base_url]  = config["RallyURL"]
-      @test_setup[:username]  = config["Username"]
-      @test_setup[:password]  = config["Password"]
-      @test_setup[:api_key]   = config["API_KEY"]
-      @test_setup[:workspace] = config["Workspace"]
-      @test_setup[:project]   = config["Project"]
-      @test_setup[:debug]     = config["Debug"]
-      @test_setup[:version]   = config["Version"]
-
-      @extra_setup = {}
-      @extra_setup[:nondefault_ws]  = config["NonDefaultWS"]
-      @extra_setup[:custom_pi_type] = config["CustomPIType"]
-      @extra_setup[:weblink_field_name] = config["WebLinkFieldName"]
-
-      return @test_setup
-    end
-
-  end
 end
 
 ### New setup enables dynamic loading of config files
