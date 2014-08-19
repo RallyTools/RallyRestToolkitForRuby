@@ -33,7 +33,6 @@ module RallyAPISpecHelper
   #cred_file = "RallyAPIcredentialsAPIKEY.txt"
   cred_file = "RallyAPIcredentials.txt"
 
-
   if (Dir.pwd.include?("test"))
     path = "./#{cred_file}"
   else
@@ -58,11 +57,11 @@ module RallyAPISpecHelper
 
 end
 
-### New setup enables dynamic loading of config files
-# Usage: Load Config File
+
+### RallyConfigLoader::LoadConfig enables dynamic loading of config files
+# Usage: Load Config File from spec
 #   load config from default file: load_api_config.test_setup
 #   load config from custom file:  load_api_config('YourConfigFile.txt').test_setup
-
 module RallyConfigLoader
   class LoadConfig
     attr_accessor :test_setup, :extra_setup

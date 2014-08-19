@@ -9,7 +9,6 @@ describe "Rally Authentication" do
   let(:rally_connection) { RallyAPI::RallyRestJson.new(rally_config) }
   let(:first_defect)     { retrieve_first_defect(rally_connection) }
 
-
   context "API Key, Username, and Password are valid and present" do
     it "can retrieve defects" do      
       (first_defect[:name]).should_not be_empty
@@ -34,7 +33,6 @@ describe "Rally Authentication" do
       lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-401/)
     end
   end
-
 
   context "Invalid API key, valid username or password" do
     it "should throw a reasonable exception for a bad password or username" do
@@ -63,7 +61,6 @@ describe "Rally Authentication" do
   end
 
 end
-
 
 # TODO: Move into shared RSpec helpers folder
 def retrieve_first_defect(api_connection)
