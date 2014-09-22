@@ -95,6 +95,32 @@ module RallyAPI
       self
     end
 
+    def send_request(url = nil, args = nil, params = {})
+      if params[:workspace].nil? && rally_workspace_object
+        params[:workspace] = rally_workspace_object['_ref']
+      end
+      if params[:workspace]
+        wksp_id = params[:workspace].match(/workspace\/(\d*)/)[1]
+        url += "?/workspace=/workspace/#{wksp_id}"
+      end
+      @rally_connection.send_request(url, args, params)
+    end
+
+
+    def rally_workspace_object(new_wksp = nil)
+      return @rally_default_workspace if new_wksp.nil?
+      if new_wksp.instance_of?(String)
+        if new_wksp.match(/rallydev.com/)
+          @rally_default_workspace = find_workspace(new_wksp, '_ref')
+        else
+          @rally_default_workspace = find_workspace(new_wksp, 'Name')  
+        end
+      else
+        @rally_default_workspace = new_wksp
+      end
+      return @rally_default_workspace
+    end
+
     def debug_logging_on
       @low_debug = true
       @rally_connection.low_debug = true
@@ -105,12 +131,13 @@ module RallyAPI
       @rally_connection.low_debug = false
     end
 
-    def find_workspace(workspace_name)
+    def find_workspace(workspace_name, matcher_ref = 'Name')
+      # use matcher_ref to search for 'Name' or '_ref'
       sub = self.user["Subscription"].read({:fetch => "Workspaces,Name,State"})
       workspace = nil
       sub.Workspaces.each do |ws|
         #ws.read
-        if (ws["Name"] == workspace_name) && (ws["State"] == "Open")
+        if (ws[matcher_ref] == workspace_name) && (ws["State"] == "Open")
           workspace = ws
           break  #doing a break for performance some customers have 100+ workspaces - no need to do the others
         end
@@ -137,7 +164,7 @@ module RallyAPI
 
     def user(params = {})
       args = { :method => :get }
-      json_response = @rally_connection.send_request(make_get_url("user"), args, params)
+      json_response = send_request(make_get_url("user"), args, params)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
@@ -145,7 +172,7 @@ module RallyAPI
     def create(type, fields, params = {})
       type = check_type(type)
       if (fields["Workspace"].nil? && fields["Project"].nil?)
-        fields["Workspace"] = @rally_default_workspace._ref unless @rally_default_workspace.nil?
+        fields["Workspace"] = rally_workspace_object._ref unless rally_workspace_object.nil?
         fields["Project"] = @rally_default_project._ref unless @rally_default_project.nil?
       end
 
@@ -157,7 +184,7 @@ module RallyAPI
       object2create = { type => check_fields(fields) }
       args = { :method => :post, :payload => object2create }
       #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
-      json_response = @rally_connection.send_request(make_create_url(type), args, params)
+      json_response = send_request(make_create_url(type), args, params)
       #todo - check for warnings
       RallyObject.new(self, json_response["CreateResult"]["Object"], warnings(json_response)).read()
     end
@@ -166,9 +193,9 @@ module RallyAPI
     def read(type, obj_id, params = {})
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
-      params[:workspace] = @rally_default_workspace.ref if params[:workspace].nil?
+      params[:workspace] = rally_workspace_object.ref if params[:workspace].nil?
       args = { :method => :get }
-      json_response = @rally_connection.send_request(ref, args, params)
+      json_response = send_request(ref, args, params)
       rally_type = json_response.keys[0]
       RallyObject.new(self, json_response[rally_type], warnings(json_response))
     end
@@ -176,7 +203,7 @@ module RallyAPI
     def delete(ref_to_delete)
       args = { :method => :delete }
       #json_response = @rally_connection.delete_object(ref_to_delete, args)
-      json_response = @rally_connection.send_request(ref_to_delete, args)
+      json_response = send_request(ref_to_delete, args)
       json_response["OperationResult"]
     end
 
@@ -186,7 +213,7 @@ module RallyAPI
         params[:workspace] = json_object['Workspace']['_ref']
       end
       #json_response = @rally_connection.read_object(json_object["_ref"], args, params)
-      json_response = @rally_connection.send_request(json_object["_ref"], args, params)
+      json_response = send_request(json_object["_ref"], args, params)
       rally_type = json_response.keys[0]
       json_response[rally_type]
     end
@@ -209,7 +236,7 @@ module RallyAPI
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
       json_update = {type.to_s => check_fields(fields)}
       args = {:method => :post, :payload => json_update}
-      json_response = @rally_connection.send_request(ref, args, params)
+      json_response = send_request(ref, args, params)
       #todo check for warnings on json_response["OperationResult"]
       RallyObject.new(self, reread({"_ref" => ref}), warnings(json_response))
     end
@@ -243,7 +270,7 @@ module RallyAPI
       yield query_obj if block_given?
 
       if query_obj.workspace.nil?
-        query_obj.workspace = @rally_default_workspace unless @rally_default_workspace.nil?
+        query_obj.workspace = rally_workspace_object unless rally_workspace_object.nil?
       end
 
       errs = query_obj.validate()
@@ -272,7 +299,7 @@ module RallyAPI
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
       #update = @rally_connection.put_object(ref, args, params, json_update)
-      json_response = @rally_connection.send_request(ref, args, params)
+      json_response = send_request(ref, args, params)
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
@@ -284,7 +311,7 @@ module RallyAPI
       params[:fetch] = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
-      json_response = @rally_connection.send_request(ref, args, params)
+      json_response = send_request(ref, args, params)
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
@@ -295,11 +322,11 @@ module RallyAPI
       params[:fetch]  = "true"
       json_update = { get_type_from_ref(ref_to_rank) => {"_ref" => ref_to_rank} }
       args = { :method => :put, :payload => json_update }
-      json_response = @rally_connection.send_request(ref, args, params)
+      json_response = send_request(ref, args, params)
       RallyObject.new(self, json_response["OperationResult"]["Object"], warnings(json_response))
     end
 
-    def get_typedef_for(type, workspace = @rally_default_workspace)
+    def get_typedef_for(type, workspace = rally_workspace_object)
       type = type.to_s if type.class == Symbol
       type = check_type(type)
       type_def_query             = RallyQuery.new()
@@ -311,7 +338,7 @@ module RallyAPI
       type_def.first
     end
 
-    def get_fields_for(type, workspace = @rally_default_workspace)
+    def get_fields_for(type, workspace = rally_workspace_object)
       type_def = get_typedef_for(type, workspace)
       return nil if type_def.nil?
       fields = {}
@@ -323,7 +350,9 @@ module RallyAPI
     end
 
     #todo - check support for portfolio item fields
-    def allowed_values(type, field, workspace = @rally_default_workspace)
+    def allowed_values(type, field, workspace = nil)
+      rally_workspace_object(workspace)
+  
       type_def = get_typedef_for(type, workspace)
       allowed_vals = {}
       type_def["Attributes"].each do |attr|
@@ -337,7 +366,7 @@ module RallyAPI
       allowed_vals
     end
 
-    def custom_fields_for(type, workspace = @rally_default_workspace)
+    def custom_fields_for(type, workspace = rally_workspace_object)
       @custom_fields_for_type[workspace.ObjectID] = {} if @custom_fields_for_type[workspace.ObjectID].nil?
       if @custom_fields_for_type[workspace.ObjectID][type].nil?
         @custom_fields_for_type[workspace.ObjectID][type] = {}
@@ -424,7 +453,7 @@ module RallyAPI
       query.query_string  = "(FormattedID = #{fid})"
       query.limit         = 20
       query.fetch         = "FormattedID"
-      query.workspace     = @rally_default_workspace
+      query.workspace     = rally_workspace_object
 
       results = find(query)
       return results.first["_ref"] if results.length > 0

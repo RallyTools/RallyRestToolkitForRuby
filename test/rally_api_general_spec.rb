@@ -78,7 +78,7 @@ describe "Rally API specific artifact tests" do
                                           :vendor => "Rally" } )
       end
 
-      it 'gets workspace-scoped allowed values' do
+      it 'gets workspace-scoped allowed values in WSAPI v2.0' do
         # Note: This test requires that the non-default workspace has different
         #       allowed values for Defect ScheduleState
 
