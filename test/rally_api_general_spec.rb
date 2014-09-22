@@ -85,7 +85,6 @@ describe "Rally API specific artifact tests" do
         # Setup
         FileUtils.cp('test/support/configs/non_default_workspace_config.yml', 'configs/non_default_workspace_config.yml')
         @conf = YAML.load_file('configs/non_default_workspace_config.yml')
-        @logger = Logger.new("rally_allowed_values_test.log")
         # Connect to default workspace
         d_config =
           { :base_url   =>  @conf['RallyURL'] + '/slm',
