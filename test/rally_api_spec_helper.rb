@@ -1,6 +1,7 @@
 require 'simplecov'
 require 'yaml'
 require 'rspec'
+require 'pry'
 require_relative "../lib/rally_api"
 
 

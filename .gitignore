@@ -20,3 +20,7 @@ scratchpad.rb
 
 #rvmrc used to configure the gemset on a given machine
 .rvmrc
+
+#files used in testing
+test/support/configs/*
+*.log
