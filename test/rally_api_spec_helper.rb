@@ -2,7 +2,6 @@ require 'simplecov'
 require 'yaml'
 require 'rspec'
 require 'pry'
-require_relative "../lib/rally_api"
 
 
 #clear simplecov filters so this works in Rubymine
@@ -12,6 +11,9 @@ SimpleCov.start do
   add_filter '/test/'
   add_filter '/.rvm/'
 end
+
+# The lib directory must be loaded AFTER SimpleCov to enable code coverage metrics
+require_relative "../lib/rally_api"
 
 
 # --- For spec helper - include a file named RallyAPIcredentials.txt in this directory and put this in it
