@@ -80,9 +80,8 @@ describe "Rally Json API" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     proxy_setup = "http://puser:ppass@someproxy:3128"
     rally_config[:proxy] = proxy_setup
-    errmsg1 = "RallyAPI: - rescued exception - getaddrinfo: nodename nor servname provided, or not known "
-    errmsg2 = "http://someproxy:3128"
-    lambda {RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /#{errmsg1}.*#{errmsg2}/)
+    error_msg = /RallyAPI: - rescued exception - getaddrinfo: .*(name|Name).* not known \(http:\/\/someproxy:3128\) on request to/
+    lambda {RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, error_msg)
   end
 
   it "should throw a reasonable exception for a 404 URL" do

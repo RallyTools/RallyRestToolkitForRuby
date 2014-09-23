@@ -83,8 +83,7 @@ describe "Rally API specific artifact tests" do
         #       allowed values for Defect ScheduleState
 
         # Setup
-        FileUtils.cp('test/support/configs/non_default_workspace_config.yml', 'configs/non_default_workspace_config.yml')
-        @conf = YAML.load_file('configs/non_default_workspace_config.yml')
+        @conf = YAML.load_file('test/support/configs/non_default_workspace_config.yml')
         # Connect to default workspace
         d_config =
           { :base_url   =>  @conf['RallyURL'] + '/slm',
@@ -107,9 +106,6 @@ describe "Rally API specific artifact tests" do
 
         # Verify this non-default workspace has different allowed values
         default_ws_values.should_not eq(nondefault_ws_values)
-
-        # Cleanup
-        FileUtils.rm('configs/non_default_workspace_config.yml')
       end
     end
   end
