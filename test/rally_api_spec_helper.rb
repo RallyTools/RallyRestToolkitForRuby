@@ -102,4 +102,7 @@ end
 
 RSpec.configure do |c|
   c.include(RallyConfigLoader)
+  c.tty = true
+  c.color = true
+  c.formatter = :documentation
 end
