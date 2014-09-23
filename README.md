@@ -145,3 +145,8 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
     story1.rank_below(story2)
     story1.rank_to_bottom
     story1.rank_to_top
+
+### Revision History
+    Version 1.1.0 (September 2014) - Appends workspace to Rally API requests to enable correct retrieval
+      of allowed values from a user's non-default workspace.
+
