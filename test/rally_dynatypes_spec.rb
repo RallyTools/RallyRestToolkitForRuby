@@ -24,8 +24,8 @@ describe "DynaType and Portfolio Item specific tests" do
 
     fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}
     new_pi = @rally.create(name_to_try.downcase.gsub(" ", "").to_sym, fields)
-    new_pi.should_not be_nil
-    new_pi.Name.should == fields[:Name]
+    expect(new_pi).not_to be_nil
+    expect(new_pi.Name).to eq(fields[:Name])
   end
 
   #2-------------------------------------------------------------------------------------------
@@ -46,12 +46,12 @@ describe "DynaType and Portfolio Item specific tests" do
     type_to_try = name_to_try.downcase.gsub(" ", "").to_sym
     fields = {:Name => "test #{name_to_try} for rally_api - #{DateTime.now}"}
     new_pi = @rally.create(type_to_try, fields)
-    new_pi.should_not be_nil
-    new_pi.Name.should == fields[:Name]
+    expect(new_pi).not_to be_nil
+    expect(new_pi.Name).to eq(fields[:Name])
 
     pi = @rally.read(type_to_try, new_pi["ObjectID"])
-    pi.should_not be_nil
-    pi["Name"].should == fields[:Name]
+    expect(pi).not_to be_nil
+    expect(pi["Name"]).to eq(fields[:Name])
 
     pi_list = @rally.find do |q|
       q.type = type_to_try
@@ -64,10 +64,10 @@ describe "DynaType and Portfolio Item specific tests" do
     pi_list.each do |pi|
       found = true if pi.Name == fields[:Name] && pi.ObjectID == new_pi.ObjecID
     end
-    found.should == true
+    expect(found).to eq(true)
 
     fields = @rally.get_fields_for(type_to_try)
-    fields.should_not be_nil
+    expect(fields).not_to be_nil
   end
 
   #3-------------------------------------------------------------------------------------------
@@ -77,8 +77,8 @@ describe "DynaType and Portfolio Item specific tests" do
 
     fields = {:Name => "test #{custom_pi_type} for rally_api - #{DateTime.now}", "Workspace" => non_default_ws}
     new_pi = @rally.create(custom_pi_type, fields)
-    new_pi.should_not be_nil
-    new_pi["Workspace"].ref.should == non_default_ws.ref
+    expect(new_pi).not_to be_nil
+    expect(new_pi["Workspace"].ref).to eq(non_default_ws.ref)
   end
 
 end

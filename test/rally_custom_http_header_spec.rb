@@ -6,9 +6,9 @@ describe "Rally Custom Headers" do
 
   it "should have the basic information" do
     ch = RallyAPI::CustomHttpHeader.new()
-    ch.name.should == "RallyRestJsonRuby"
-    ch.platform.should match("Ruby")
-    ch.library.should match("RallyRestJson version")
+    expect(ch.name).to eq("RallyRestJsonRuby")
+    expect(ch.platform).to match("Ruby")
+    expect(ch.library).to match("RallyRestJson version")
   end
 
   it "should generate headers properly" do
@@ -16,8 +16,8 @@ describe "Rally Custom Headers" do
     headers = ch.headers
 
     #puts headers
-    headers[:"X-RallyIntegrationName"].should == "RallyRestJsonRuby"
-    headers[:"X-RallyIntegrationPlatform"].should match("Ruby")
+    expect(headers[:"X-RallyIntegrationName"]).to eq("RallyRestJsonRuby")
+    expect(headers[:"X-RallyIntegrationPlatform"]).to match("Ruby")
   end
 
   it "should generate headers properly with customized info" do
@@ -27,41 +27,41 @@ describe "Rally Custom Headers" do
 
     headers = ch.headers
 
-    headers[:"X-RallyIntegrationName"].should == "Custom Name"
-    headers[:"X-RallyIntegrationPlatform"].should match("Ruby")
-    headers[:"X-RallyIntegrationVendor"].should == "Vendor2"
+    expect(headers[:"X-RallyIntegrationName"]).to eq("Custom Name")
+    expect(headers[:"X-RallyIntegrationPlatform"]).to match("Ruby")
+    expect(headers[:"X-RallyIntegrationVendor"]).to eq("Vendor2")
   end
 
   it "should generate headers properly with customized info" do
     ch = RallyAPI::CustomHttpHeader.new({:vendor => "Vendor", :name => "Custom Name", :version => "2.0"})
     headers = ch.headers
 
-    headers[:"X-RallyIntegrationName"].should == "Custom Name"
-    headers[:"X-RallyIntegrationPlatform"].should match("Ruby")
-    headers[:"X-RallyIntegrationVendor"].should == "Vendor"
-    headers[:"X-RallyIntegrationVersion"].should == "2.0"
+    expect(headers[:"X-RallyIntegrationName"]).to eq("Custom Name")
+    expect(headers[:"X-RallyIntegrationPlatform"]).to match("Ruby")
+    expect(headers[:"X-RallyIntegrationVendor"]).to eq("Vendor")
+    expect(headers[:"X-RallyIntegrationVersion"]).to eq("2.0")
   end
 
   it "should generate headers properly with only some of the customized info set" do
     ch = RallyAPI::CustomHttpHeader.new({:vendor => "Vendor"})
     headers = ch.headers
 
-    headers[:"X-RallyIntegrationName"].should == "RallyRestJsonRuby"
-    headers[:"X-RallyIntegrationVendor"].should == "Vendor"
-    headers[:"X-RallyIntegrationVersion"].should be_nil
+    expect(headers[:"X-RallyIntegrationName"]).to eq("RallyRestJsonRuby")
+    expect(headers[:"X-RallyIntegrationVendor"]).to eq("Vendor")
+    expect(headers[:"X-RallyIntegrationVersion"]).to be_nil
 
     ch = RallyAPI::CustomHttpHeader.new({:name => "Custom Name"})
     headers = ch.headers
 
-    headers[:"X-RallyIntegrationName"].should == "Custom Name"
-    headers[:"X-RallyIntegrationVendor"].should be_nil
-    headers[:"X-RallyIntegrationVersion"].should be_nil
+    expect(headers[:"X-RallyIntegrationName"]).to eq("Custom Name")
+    expect(headers[:"X-RallyIntegrationVendor"]).to be_nil
+    expect(headers[:"X-RallyIntegrationVersion"]).to be_nil
   end
 
 
   it "should have basic headers with a new up of RallyJsonApi" do
     rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
-    rally.rally_headers.name.should match("Rally")
+    expect(rally.rally_headers.name).to match("Rally")
   end
 
 

@@ -29,15 +29,15 @@ describe "Rally API specific artifact tests" do
     obj["Description"] = "Test Description"
 
     tag1 = find_tag(USE_TAGNAME)
-    tag1.nil?.should == false
+    expect(tag1.nil?).to eq(false)
 
     obj["Tags"] = [tag1]
 
     new_st = @rally.create(:story, obj)
-    new_st.Name.should == obj["Name"]
-    new_st.Tags.nil?.should == false
+    expect(new_st.Name).to eq(obj["Name"])
+    expect(new_st.Tags.nil?).to eq(false)
     first_tag = new_st.Tags[0].read
-    first_tag["Name"].should == USE_TAGNAME
+    expect(first_tag["Name"]).to eq(USE_TAGNAME)
   end
 
   it "should be able to create a story and tasks" do
@@ -45,29 +45,29 @@ describe "Rally API specific artifact tests" do
     obj["Name"] = "Test Story for Tasks created #{DateTime.now()}"
     obj["Description"] = "Test Description"
     new_st = @rally.create(:story, obj)
-    new_st.Name.should == obj["Name"]
+    expect(new_st.Name).to eq(obj["Name"])
 
     task_obj = { "Name" => "Test Task created on #{DateTime.now()}" }
     task_obj["WorkProduct"] = new_st
     new_task = @rally.create(:task, task_obj)
-    new_task.nil?.should == false
-    new_task["WorkProduct"]["_ref"].should == new_st["_ref"]
+    expect(new_task.nil?).to eq(false)
+    expect(new_task["WorkProduct"]["_ref"]).to eq(new_st["_ref"])
   end
 
   context '#allowed_values', allowed_values: true do
     context 'in default workspace' do
       it 'gets allowed values' do
         allowed_sevs = @rally.allowed_values("Defect", "Severity")
-        allowed_sevs.length.should > 2
+        expect(allowed_sevs.length).to be > 2
         allowed_states = @rally.allowed_values(:story, "ScheduleState")
-        allowed_states.length.should > 3
+        expect(allowed_states.length).to be > 3
         found = false
         allowed_states.each_key do |st|
           found = true if st == "Accepted"
         end
-        found.should be true
+        expect(found).to be true
         allowed_hr_states = @rally.allowed_values("HierarchicalRequirement", "ScheduleState")
-        allowed_hr_states.length.should > 3
+        expect(allowed_hr_states.length).to be > 3
       end
     end
 
@@ -105,36 +105,36 @@ describe "Rally API specific artifact tests" do
         nondefault_ws_values = nd_rally.allowed_values("Defect", "ScheduleState", nd_workspace)
 
         # Verify this non-default workspace has different allowed values
-        default_ws_values.should_not eq(nondefault_ws_values)
+        expect(default_ws_values).not_to eq(nondefault_ws_values)
       end
     end
   end
 
   it "should get the field list for defect" do
     fields = @rally.get_fields_for("defect")
-    fields.should_not be_nil
-    fields["State"].should_not be_nil
-    fields["as;dfklasdf"].should be_nil
+    expect(fields).not_to be_nil
+    expect(fields["State"]).not_to be_nil
+    expect(fields["as;dfklasdf"]).to be_nil
   end
 
   it "should get the field list for stories" do
     fields = @rally.get_fields_for("story")
-    fields.should_not be_nil
-    fields["ScheduleState"].should_not be_nil
-    fields["State"].should be_nil
-    fields["as;dfklasdf"].should be_nil
+    expect(fields).not_to be_nil
+    expect(fields["ScheduleState"]).not_to be_nil
+    expect(fields["State"]).to be_nil
+    expect(fields["as;dfklasdf"]).to be_nil
   end
 
   it "should get the field list for tasks" do
     fields = @rally.get_fields_for("task")
-    fields.should_not be_nil
-    fields["State"].should_not be_nil
-    fields["as;dfklasdf"].should be_nil
+    expect(fields).not_to be_nil
+    expect(fields["State"]).not_to be_nil
+    expect(fields["as;dfklasdf"]).to be_nil
   end
 
   it "should get the custom fields for defects" do
     custom_fields = @rally.custom_fields_for("defect")
-    custom_fields.should_not be_nil
+    expect(custom_fields).not_to be_nil
   end
 
 end

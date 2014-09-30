@@ -34,7 +34,7 @@ describe "Rally Query Tests" do
   it "should throw an error for no object type" do
     test_hash = {}
     test_query = RallyAPI::RallyQuery.new(test_hash)
-    test_query.validate().length.should > 0
+    expect(test_query.validate().length).to be > 0
   end
 
   it "should throw an error for a bad pagesize" do
@@ -42,32 +42,32 @@ describe "Rally Query Tests" do
     test_hash[:pagesize] = 9999
 
     test_query = RallyAPI::RallyQuery.new(test_hash)
-    test_query.validate().length.should > 0
+    expect(test_query.validate().length).to be > 0
   end
 
   it "should form a query based on a query hash" do
     test_query = RallyAPI::RallyQuery.new(@query_hash)
-    test_query.validate().length.should == 0
+    expect(test_query.validate().length).to eq(0)
     params = test_query.make_query_params
 
-    params[:query].should             == @query_hash[:query_string]
-    params[:fetch].should             == @query_hash[:fetch]
-    params[:workspace].nil?.should    == true
-    params[:project].nil?.should      == true
-    params[:projectScopeUp].should    == @query_hash[:project_scope_up]
-    params[:projectScopeDown].should  == @query_hash[:project_scope_down]
-    params[:order].should             == @query_hash[:order]
-    params[:pagesize].should          == @query_hash[:page_size]
+    expect(params[:query]).to             eq(@query_hash[:query_string])
+    expect(params[:fetch]).to             eq(@query_hash[:fetch])
+    expect(params[:workspace].nil?).to    eq(true)
+    expect(params[:project].nil?).to      eq(true)
+    expect(params[:projectScopeUp]).to    eq(@query_hash[:project_scope_up])
+    expect(params[:projectScopeDown]).to  eq(@query_hash[:project_scope_down])
+    expect(params[:order]).to             eq(@query_hash[:order])
+    expect(params[:pagesize]).to          eq(@query_hash[:page_size])
   end
 
   it "should form a query by setting the member variables" do
     test_query = RallyAPI::RallyQuery.new
 
     #defaults
-    test_query.page_size.should           == 200
-    test_query.limit.should               == 99999
-    test_query.project_scope_up.should    == false
-    test_query.project_scope_down.should  == false
+    expect(test_query.page_size).to           eq(200)
+    expect(test_query.limit).to               eq(99999)
+    expect(test_query.project_scope_up).to    eq(false)
+    expect(test_query.project_scope_down).to  eq(false)
 
     test_query.type = :defect
     test_query.fetch = "true"
@@ -75,20 +75,20 @@ describe "Rally Query Tests" do
     test_query.search = "foo"
     test_query.types = "hierarchicalrequirement,portfolioitem/feature"
 
-    test_query.validate().length.should == 0
+    expect(test_query.validate().length).to eq(0)
 
     params = test_query.make_query_params
 
-    params[:query].nil?.should        == true
-    params[:fetch].should             == "true"
-    params[:workspace].nil?.should    == true
-    params[:project].nil?.should      == true
-    params[:projectScopeUp].should    == false
-    params[:projectScopeDown].should  == false
-    params[:order].nil?.should        == true
-    params[:pagesize].should          == 200
-    params[:search].should            == "foo"
-    params[:types].should             == "hierarchicalrequirement,portfolioitem/feature"
+    expect(params[:query].nil?).to        eq(true)
+    expect(params[:fetch]).to             eq("true")
+    expect(params[:workspace].nil?).to    eq(true)
+    expect(params[:project].nil?).to      eq(true)
+    expect(params[:projectScopeUp]).to    eq(false)
+    expect(params[:projectScopeDown]).to  eq(false)
+    expect(params[:order].nil?).to        eq(true)
+    expect(params[:pagesize]).to          eq(200)
+    expect(params[:search]).to            eq("foo")
+    expect(params[:types]).to             eq("hierarchicalrequirement,portfolioitem/feature")
   end
 
 
@@ -100,8 +100,8 @@ describe "Rally Query Tests" do
     qh[:limit] = limit
 
     test_query = RallyAPI::RallyQuery.new(qh)
-    test_query.type.should  == "defect"
-    test_query.limit.should == limit
+    expect(test_query.type).to  eq("defect")
+    expect(test_query.limit).to eq(limit)
   end
 
   it "should make a query and allow setting type by property" do
@@ -109,7 +109,7 @@ describe "Rally Query Tests" do
     test_query.type = "defect"
     test_query.fetch = "Name"
 
-    test_query.type.should == "defect"
+    expect(test_query.type).to eq("defect")
   end
 
   it "should validate a query" do
@@ -117,7 +117,7 @@ describe "Rally Query Tests" do
     test_query.type = :defect
     test_query.fetch = "Name"
 
-    test_query.validate().length.should == 0
+    expect(test_query.validate().length).to eq(0)
   end
 
   it "should throw an error for a bad query workspace and project" do
@@ -127,8 +127,8 @@ describe "Rally Query Tests" do
     test_query.workspace = "bucky"
     test_query.project = "badger"
 
-    test_query.validate().length.should > 1
-    lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
+    expect(test_query.validate().length).to be > 1
+    expect { @rally.find(test_query) }.to raise_exception(/Errors making Rally Query/)
   end
 
   it "should throw an error for a bad query pagesize or limit" do
@@ -138,8 +138,8 @@ describe "Rally Query Tests" do
     test_query.page_size = -1
     test_query.limit = -1
 
-    test_query.validate().length.should > 1
-    lambda { @rally.find(test_query) }.should raise_exception(/Errors making Rally Query/)
+    expect(test_query.validate().length).to be > 1
+    expect { @rally.find(test_query) }.to raise_exception(/Errors making Rally Query/)
   end
 
   it "should find defects" do
@@ -151,9 +151,9 @@ describe "Rally Query Tests" do
     test_query.query_string = "(Name contains \"#{@base_name.to_s}\")"
 
     query_result = @rally.find(test_query)
-    query_result.total_result_count.should == 3
+    expect(query_result.total_result_count).to eq(3)
 
-    query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
+    expect(query_result.results[0]["Name"]).to match(/#{@base_name.to_s}/)
   end
 
   #note -this test assumes a workspace with more than 10 defects
@@ -162,7 +162,7 @@ describe "Rally Query Tests" do
     test_query = RallyAPI::RallyQuery.new(qh)
     query_result = @rally.find(test_query)
     #query_result.each_with_index { |de, ind| puts "#{ind} - #{de["Name"]}"}
-    query_result.length.should == 10
+    expect(query_result.length).to eq(10)
   end
 
   it "should loop over more than a page of query results" do
@@ -177,8 +177,8 @@ describe "Rally Query Tests" do
       name_list << ",#{story.Name}"
     end
 
-    name_list.length.should > 1
-    query_result.length.should == 100
+    expect(name_list.length).to be > 1
+    expect(query_result.length).to eq(100)
   end
 
   it "should find stories with the :story alias" do
@@ -190,9 +190,9 @@ describe "Rally Query Tests" do
     test_query.query_string =  "(Name contains \"#{@base_name.to_s}\")"
 
     query_result = @rally.find(test_query)
-    query_result.total_result_count.should == 3
+    expect(query_result.total_result_count).to eq(3)
 
-    query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
+    expect(query_result.results[0]["Name"]).to match(/#{@base_name.to_s}/)
   end
 
   it "should take a block in find and let you mod the query" do
@@ -204,8 +204,8 @@ describe "Rally Query Tests" do
       query.query_string = "(Name contains \"#{@base_name.to_s}\")"
     end
 
-    query_result.total_result_count.should == 3
-    query_result.results[0]["Name"].should match(/#{@base_name.to_s}/)
+    expect(query_result.total_result_count).to eq(3)
+    expect(query_result.results[0]["Name"]).to match(/#{@base_name.to_s}/)
   end
 
   it "should have warnings on the query result" do
@@ -219,29 +219,29 @@ describe "Rally Query Tests" do
       query.limit = 100
       query.query_string = "(Name contains \"#{@base_name.to_s}\")"
     end
-    query_result.warnings.should_not be_nil
-    query_result.warnings[0].should include("Please update your client to use the latest version of the API.")
+    expect(query_result.warnings).not_to be_nil
+    expect(query_result.warnings[0]).to include("Please update your client to use the latest version of the API.")
     @rally.wsapi_version = current_wsapi
   end
 
   it "should change threads safely" do
     @rally.adjust_find_threads(1)
-    @rally.rally_connection.find_threads.should == 1
+    expect(@rally.rally_connection.find_threads).to eq(1)
 
     @rally.adjust_find_threads(2)
-    @rally.rally_connection.find_threads.should == 2
+    expect(@rally.rally_connection.find_threads).to eq(2)
 
     @rally.adjust_find_threads(-1)
-    @rally.rally_connection.find_threads.should == 1
+    expect(@rally.rally_connection.find_threads).to eq(1)
 
     @rally.adjust_find_threads(10)
-    @rally.rally_connection.find_threads.should == 4
+    expect(@rally.rally_connection.find_threads).to eq(4)
 
     @rally.adjust_find_threads("abc")
-    @rally.rally_connection.find_threads.should == 4
+    expect(@rally.rally_connection.find_threads).to eq(4)
 
     @rally.rally_connection.set_find_threads
-    @rally.rally_connection.find_threads.should == 2
+    expect(@rally.rally_connection.find_threads).to eq(2)
   end
 
   #support the crazy query string structure for the api
@@ -257,20 +257,20 @@ describe "Rally Query Tests" do
 
     or_conditions = ['Severity = "Major Problem"', 'Severity = "Crash/Data Loss"', 'Severity = "Minor Problem"']
     query_str = test_query.build_query_segment(or_conditions, "OR")
-    query_str.should == big_or_text
+    expect(query_str).to eq(big_or_text)
 
     query_str = test_query.build_query_segment(or_conditions[0..1], "OR")
-    query_str.should == or1_text
+    expect(query_str).to eq(or1_text)
 
     query_str = test_query.add_and(query_str, "Priority = Low")
-    query_str.should == orand1_text
+    expect(query_str).to eq(orand1_text)
 
     and_conditions1 = ['Severity = "Major Problem"', 'Priority = "Low"']
     and_conditions2 = ['Severity = "Crash/Data Loss"', 'Priority = "Normal"']
     and_str1 = test_query.build_query_segment(and_conditions1, "AND")
     and_str2  = test_query.build_query_segment(and_conditions2, "AND")
     query_str = test_query.add_or(and_str1, and_str2)
-    query_str.should == crazy_and_text
+    expect(query_str).to eq(crazy_and_text)
   end
 
 

@@ -12,25 +12,25 @@ describe "Rally Json API" do
   end
 
   it "should properly allow aliases for types" do
-    @rally.rally_alias_types["story"].should == "HierarchicalRequirement"
+    expect(@rally.rally_alias_types["story"]).to eq("HierarchicalRequirement")
     an_alias = "myaliasfordefect"
     @rally.rally_alias_types[an_alias] = "Defect"
-    @rally.rally_alias_types[an_alias].should == "Defect"
+    expect(@rally.rally_alias_types[an_alias]).to eq("Defect")
   end
 
   it "should have a default workspace and project" do
-    @rally.rally_default_workspace.nil?.should == false
-    @rally.rally_default_project.nil?.should == false
-    @rally.rally_default_project.Name.should_not be_nil
-    @rally.rally_default_workspace.Name.should_not be_nil
+    expect(@rally.rally_default_workspace.nil?).to eq(false)
+    expect(@rally.rally_default_project.nil?).to eq(false)
+    expect(@rally.rally_default_project.Name).not_to be_nil
+    expect(@rally.rally_default_workspace.Name).not_to be_nil
   end
 
   it "should get the reference fields okay" do
-    RallyAPI::RALLY_REF_FIELDS.nil?.should == false
-    RallyAPI::RALLY_REF_FIELDS.include?("foo").should == false
-    RallyAPI::RALLY_REF_FIELDS.include?("Parent").should == true
-    RallyAPI::RALLY_REF_FIELDS.include?("Requirement").should == true
-    RallyAPI::RALLY_REF_FIELDS.include?("WorkProduct").should == true
+    expect(RallyAPI::RALLY_REF_FIELDS.nil?).to eq(false)
+    expect(RallyAPI::RALLY_REF_FIELDS.include?("foo")).to eq(false)
+    expect(RallyAPI::RALLY_REF_FIELDS.include?("Parent")).to eq(true)
+    expect(RallyAPI::RALLY_REF_FIELDS.include?("Requirement")).to eq(true)
+    expect(RallyAPI::RALLY_REF_FIELDS.include?("WorkProduct")).to eq(true)
   end
 
   it "should take a logger on create" do
@@ -45,7 +45,7 @@ describe "Rally Json API" do
   it "should turn off logger" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
-    my_logger.should_not_receive(:debug)
+    expect(my_logger).not_to receive(:debug)
     rally_config[:logger] = my_logger
     rally_config[:debug]  = false
     test_rally = RallyAPI::RallyRestJson.new(rally_config)
@@ -54,7 +54,7 @@ describe "Rally Json API" do
   it "should turn on logger discretely" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
-    my_logger.should_receive(:debug).exactly(2).times
+    expect(my_logger).to receive(:debug).exactly(2).times
     rally_config[:logger] = my_logger
     rally_config[:debug]  = false
     test_rally = RallyAPI::RallyRestJson.new(rally_config)
@@ -70,10 +70,10 @@ describe "Rally Json API" do
     verify_on =  OpenSSL::SSL::VERIFY_PEER
     verify_off = OpenSSL::SSL::VERIFY_NONE
     @rally.rally_connection.set_ssl_verify_mode(verify_on)
-    @rally.rally_connection.rally_http_client.ssl_config.verify_mode.should == verify_on
+    expect(@rally.rally_connection.rally_http_client.ssl_config.verify_mode).to eq(verify_on)
 
     @rally.rally_connection.set_ssl_verify_mode(verify_off)
-    @rally.rally_connection.rally_http_client.ssl_config.verify_mode.should == verify_off
+    expect(@rally.rally_connection.rally_http_client.ssl_config.verify_mode).to eq(verify_off)
   end
 
   it "should set the proxy info correctly" do
@@ -81,20 +81,20 @@ describe "Rally Json API" do
     proxy_setup = "http://puser:ppass@someproxy:3128"
     rally_config[:proxy] = proxy_setup
     error_msg = /RallyAPI: - rescued exception - getaddrinfo: .*(name|Name).* not known \(http:\/\/someproxy:3128\) on request to/
-    lambda {RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, error_msg)
+    expect {RallyAPI::RallyRestJson.new(rally_config)}.to raise_error(StandardError, error_msg)
   end
 
   it "should throw a reasonable exception for a 404 URL" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:base_url] = "https://trial.rallydev.com/slm/slm"
-    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-302/)
+    expect{RallyAPI::RallyRestJson.new(rally_config)}.to raise_error(StandardError, /RallyAPI - HTTP-302/)
   end
 
   it "should throw a reasonable exception for a bad password or username" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:api_key] = nil
     rally_config[:password] = "asdf"
-    lambda{RallyAPI::RallyRestJson.new(rally_config)}.should raise_error(StandardError, /RallyAPI - HTTP-401/)
+    expect{RallyAPI::RallyRestJson.new(rally_config)}.to raise_error(StandardError, /RallyAPI - HTTP-401/)
   end
 
 end
