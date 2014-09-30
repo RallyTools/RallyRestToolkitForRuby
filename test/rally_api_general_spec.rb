@@ -65,7 +65,7 @@ describe "Rally API specific artifact tests" do
         allowed_states.each_key do |st|
           found = true if st == "Accepted"
         end
-        found.should be_true
+        found.should be true
         allowed_hr_states = @rally.allowed_values("HierarchicalRequirement", "ScheduleState")
         allowed_hr_states.length.should > 3
       end

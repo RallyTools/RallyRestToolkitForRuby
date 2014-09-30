@@ -45,11 +45,13 @@ describe "Rally Json Read Tests" do
     defect.ref.should == @test_defect.ref
   end
 
-  it "should conduct a find with a valid order" do
+  it "should conduct a find with a valid order", todo: true do
     defects = @rally.find do |q|
       q.type = :defect
-      q.order = "Rank ASC"
+      # q.order = "Rank ASC"
+      q.order = "Rank FooBar"
     end
+    # TODO: Update to ensure an appropriate warning is generated in WSAPI 2.0
     defects.warnings.first.should match(/Please update your client to use the latest version of the API/)
     defects.warnings.length.should == 1
   end
@@ -63,11 +65,12 @@ describe "Rally Json Read Tests" do
     end.should raise_error(StandardError, /Cannot sort using unknown attribute Invalid/)
   end
 
-  it "should conduct a find with an empty string order and it will not exception" do
+  it "should conduct a find with an empty string order and it will not exception", todo: true do
     defects = @rally.find do |q|
       q.type = :defect
       q.order = ""
     end
+    # TODO: Update to ensure an appropriate warning is generated in WSAPI 2.0
     defects.warnings.first.should match(/Please update your client to use the latest version of the API/)
     defects.warnings.length.should == 1
     # Warning: No sort criteria has been defined.  The sort order will be unpredictable.

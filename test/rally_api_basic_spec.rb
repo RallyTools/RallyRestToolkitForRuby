@@ -8,7 +8,7 @@ describe "Rally Json API" do
   end
 
   it "should connect to Rally" do
-    @rally.user.UserName.should_not be_nil
+    expect(@rally.user.UserName).not_to be_nil
   end
 
   it "should properly allow aliases for types" do
@@ -36,7 +36,7 @@ describe "Rally Json API" do
   it "should take a logger on create" do
     rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
-    my_logger.should_receive(:debug).at_least(:twice)
+    expect(my_logger).to receive(:debug).at_least(:twice)
     rally_config[:logger] = my_logger
     rally_config[:debug]  = true
     test_rally = RallyAPI::RallyRestJson.new(rally_config)
