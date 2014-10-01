@@ -1,11 +1,9 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
-require "time"
+require_relative "spec_helper"
 
 describe "Rally Json Create Tests" do
 
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
   end
 
   def setup_test_defect(fields = {})
@@ -20,12 +18,12 @@ describe "Rally Json Create Tests" do
   it "should create an object from a basic hash with ref" do
     obj = setup_test_defect
     new_de = @rally.create(:defect, obj)
-    new_de.Name.should == obj["Name"]
+    expect(new_de.Name).to eq(obj["Name"])
   end
 
   it "should throw an exception for a create on a bad artifact type" do
     obj = setup_test_defect
-    lambda { @rally.create(:bucky, obj) }.should raise_exception(StandardError, /Error on request/)
+    expect { @rally.create(:bucky, obj) }.to raise_exception(StandardError, /Error on request/)
   end
 
   it "should create with a reference to another Object" do
@@ -34,22 +32,24 @@ describe "Rally Json Create Tests" do
     obj["Owner"] = @rally.user
 
     new_de = @rally.create(:defect, setup_test_defect(obj))
-    new_de.Name.should == obj["Name"]
-    new_de.Owner["_ref"].should == @rally.user["_ref"]
+    expect(new_de.Name).to eq(obj["Name"])
+    expect(new_de.Owner["_ref"]).to eq(@rally.user["_ref"])
   end
   
   it "should create with a web link field" do
-    weblink_field_name = RallyAPISpecHelper::EXTRA_SETUP[:weblink_field_name]
-    if !weblink_field_name.nil?
+    weblink_field_name = load_api_config_extras[:weblink_field_name]
+    if weblink_field_name.nil?
+      puts "Skipping test: WebLinkFieldName not present in config"
+    else
       obj = {}
       obj["Name"] = "Test with a weblink"
       obj[weblink_field_name] = {
         "LinkID"=>"123", "DisplayString"=>"The Label"
       }
       new_de = @rally.create(:defect, setup_test_defect(obj))
-      new_de.Name.should == obj["Name"]
-      new_de[weblink_field_name]["LinkID"].should == "123"
-      new_de[weblink_field_name]["DisplayString"].should == "The Label"
+      expect(new_de.Name).to eq(obj["Name"])
+      expect(new_de[weblink_field_name]["LinkID"]).to eq("123")
+      expect(new_de[weblink_field_name]["DisplayString"]).to eq("The Label")
     end
   end
 
@@ -57,15 +57,15 @@ describe "Rally Json Create Tests" do
     obj = {}
     obj["Name"] = ""
 
-    lambda { @rally.create(:defect, obj) }.should raise_exception(/Error on request -/)
+    expect { @rally.create(:defect, obj) }.to raise_exception(/Error on request -/)
   end
 
   it "should create an object and delete it" do
     obj = setup_test_defect
     new_de = @rally.create(:defect, obj)
-    new_de.Name.should == obj["Name"]
+    expect(new_de.Name).to eq(obj["Name"])
     delete_result = new_de.delete()
-    lambda { new_de.read }.should raise_exception(/Error on request -/)
+    expect { new_de.read }.to raise_exception(/Error on request -/)
   end
 
   it "should create with params to rank to bottom" do
@@ -73,7 +73,7 @@ describe "Rally Json Create Tests" do
     defect_hash["Severity"] = "Major Problem"
     params = {:rankTo => "BOTTOM"}
     new_defect = @rally.create(:defect, defect_hash, params)
-    new_defect.Severity.should == "Major Problem"
+    expect(new_defect.Severity).to eq("Major Problem")
     bottom_defects = @rally.find do |q|
       q.type = :defect
       q.order = "Rank Desc"
@@ -81,7 +81,7 @@ describe "Rally Json Create Tests" do
       q.page_size = 20
       q.fetch = "Name,Rank,ObjectID"
     end
-    bottom_defects[0]["ObjectID"].should == new_defect["ObjectID"]
+    expect(bottom_defects[0]["ObjectID"]).to eq(new_defect["ObjectID"])
   end
 
   it "should get warnings on create" do
@@ -90,9 +90,9 @@ describe "Rally Json Create Tests" do
     obj = setup_test_defect
     obj["Name"] = "Test Defect created #{DateTime.now()} - wsapi warning check"
     new_de = @rally.create(:defect, obj)
-    new_de.Name.should == obj["Name"]
-    new_de.warnings.should_not be_nil
-    new_de.warnings[0].should include("Please update your client to use the latest version of the API.")
+    expect(new_de.Name).to eq(obj["Name"])
+    expect(new_de.warnings).not_to be_nil
+    expect(new_de.warnings[0]).to include("Please update your client to use the latest version of the API.")
     @rally.wsapi_version = current_wsapi
   end
 

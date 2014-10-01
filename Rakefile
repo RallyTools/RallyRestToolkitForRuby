@@ -7,11 +7,11 @@ end
 
 desc "run all api tests"
 RSpec::Core::RakeTask.new('api_tests') do |t|
-  t.pattern = ['test/*_spec.rb']
+  t.pattern = ['spec/*_spec.rb']
 end
 
 desc "run api create tests"
 RSpec::Core::RakeTask.new('api_create_tests') do |t|
-  t.pattern = ['test/*create_spec.rb']
+  t.pattern = ['spec/*create_spec.rb']
 end
 

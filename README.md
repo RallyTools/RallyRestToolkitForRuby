@@ -148,5 +148,6 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
 
 ### Revision History
     Version 1.1.0 (September 2014) - Appends workspace to Rally API requests to enable correct retrieval
-      of allowed values from a user's non-default workspace.
+      of allowed values from a user's non-default workspace. Updates gem development dependencies and 
+      test files structure.
 

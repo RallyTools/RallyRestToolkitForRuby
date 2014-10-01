@@ -15,15 +15,13 @@ Gem::Specification.new do |s|
 
   s.license = 'MIT'
 
-  s.has_rdoc         = false
+  s.has_rdoc = false
 
-  s.add_dependency('httpclient', '~> 2.3.0')
-  s.add_development_dependency('simplecov', '~> 0.9.0')
-  s.add_development_dependency('rspec', '~> 2.9')
-  s.add_development_dependency('rake')
-  s.add_development_dependency('cucumber')
-  s.add_development_dependency('aruba')
-  s.add_development_dependency('pry')
+  s.add_dependency('httpclient', '~> 2.4.0')
+  s.add_development_dependency('simplecov', '0.9.1')
+  s.add_development_dependency('rspec', '3.1.0')
+  s.add_development_dependency('rake', '10.3.2')
+  s.add_development_dependency('pry', '0.10.1')
 
   #s.files         = `git ls-files`.split("\n")
   s.files = %w(README.md Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
