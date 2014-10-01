@@ -1,6 +1,5 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
-require_relative "../lib/rally_api/custom_http_header"
+require_relative "spec_helper"
+
 
 describe "Rally Custom Headers" do
 

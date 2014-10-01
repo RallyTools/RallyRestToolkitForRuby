@@ -1,5 +1,5 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
+require_relative "spec_helper"
+
 
 describe "DynaType and Portfolio Item specific tests" do
 

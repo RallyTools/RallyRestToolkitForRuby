@@ -1,6 +1,5 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
-require "time"
+require_relative "spec_helper"
+
 
 describe "Rally Json Read Tests" do
 

@@ -8,7 +8,7 @@ require 'pry'
 SimpleCov.adapters.delete(:root_filter)
 SimpleCov.filters.clear
 SimpleCov.start do
-  add_filter '/test/'
+  add_filter '/spec/'
   add_filter '/.rvm/'
 end
 
@@ -36,10 +36,10 @@ module RallyAPISpecHelper
   #cred_file = "RallyAPIcredentialsAPIKEY.txt"
   cred_file = "RallyAPIcredentials.txt"
 
-  if (Dir.pwd.include?("test"))
+  if (Dir.pwd.include?("spec"))
     path = "./#{cred_file}"
   else
-    path = "./test/#{cred_file}"
+    path = "./spec/#{cred_file}"
   end
   config = YAML.load_file(path)
 
@@ -72,10 +72,10 @@ module RallyConfigLoader
     def initialize(config_file = 'RallyAPIcredentials.txt')
       @cred_file = config_file
 
-      if (Dir.pwd.include?("test"))
+      if (Dir.pwd.include?("spec"))
         path = "./#{@cred_file}"
       else
-        path = "./test/#{@cred_file}"
+        path = "./spec/#{@cred_file}"
       end
       config_file = YAML.load_file(path)
       

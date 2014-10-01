@@ -1,5 +1,5 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
+require_relative "spec_helper"
+
 
 describe "Rally API specific artifact tests" do
 
@@ -83,7 +83,7 @@ describe "Rally API specific artifact tests" do
         #       allowed values for Defect ScheduleState
 
         # Setup
-        @conf = YAML.load_file('test/support/configs/non_default_workspace_config.yml')
+        @conf = YAML.load_file('spec/support/configs/non_default_workspace_config.yml')
         # Connect to default workspace
         d_config =
           { :base_url   =>  @conf['RallyURL'] + '/slm',

@@ -1,7 +1,5 @@
-require "rspec"
+require_relative "spec_helper"
 
-require_relative "rally_api_spec_helper"
-require_relative "../lib/rally_api/rally_object"
 
 describe "Rally Json Object Tests" do
 

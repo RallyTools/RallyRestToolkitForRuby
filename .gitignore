@@ -22,6 +22,6 @@ scratchpad.rb
 .rvmrc
 
 #files used in testing
-test/support/configs/*
+spec/support/configs/*
 configs/non_default_workspace_config.yml
 *.log

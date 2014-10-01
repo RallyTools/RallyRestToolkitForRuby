@@ -1,7 +1,5 @@
-require "rspec"
-require_relative "rally_api_spec_helper"
-require_relative "../lib/rally_api/rally_query"
-require "time"
+require_relative "spec_helper"
+
 
 describe "Rally Query Tests" do
 

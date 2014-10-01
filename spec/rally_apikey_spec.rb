@@ -1,4 +1,5 @@
-require_relative "rally_api_spec_helper"
+require_relative "spec_helper"
+
 
 describe "Rally API Key Auth" do
 #TODO: Use RSpec configuration (in spec helper) to only run tests if
