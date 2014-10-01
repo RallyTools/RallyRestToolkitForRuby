@@ -1,6 +1,5 @@
 require_relative "spec_helper"
 
-
 describe "Rally Custom Headers" do
 
   it "should have the basic information" do
@@ -59,7 +58,7 @@ describe "Rally Custom Headers" do
 
 
   it "should have basic headers with a new up of RallyJsonApi" do
-    rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    rally = RallyAPI::RallyRestJson.new(load_api_config)
     expect(rally.rally_headers.name).to match("Rally")
   end
 

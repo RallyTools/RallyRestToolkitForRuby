@@ -1,10 +1,9 @@
 require_relative "spec_helper"
 
-
 describe "DynaType and Portfolio Item specific tests" do
 
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
   end
 
   #1-------------------------------------------------------------------------------------------
@@ -72,8 +71,8 @@ describe "DynaType and Portfolio Item specific tests" do
 
   #3-------------------------------------------------------------------------------------------
   it "should be able to create a custom PI in a non default workspace" do
-    custom_pi_type = "portfolioitem/" << RallyAPISpecHelper::EXTRA_SETUP[:custom_pi_type]
-    non_default_ws = @rally.find_workspace(RallyAPISpecHelper::EXTRA_SETUP[:nondefault_ws])
+    custom_pi_type = "portfolioitem/" << load_api_config_extras[:custom_pi_type]
+    non_default_ws = @rally.find_workspace(load_api_config_extras[:nondefault_ws])
 
     fields = {:Name => "test #{custom_pi_type} for rally_api - #{DateTime.now}", "Workspace" => non_default_ws}
     new_pi = @rally.create(custom_pi_type, fields)

@@ -1,6 +1,5 @@
 require_relative "spec_helper"
 
-
 describe "Rally API specific artifact tests" do
 
   USE_TAGNAME = "zzTag1"
@@ -16,7 +15,7 @@ describe "Rally API specific artifact tests" do
   end
 
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
     tag1 = find_tag(USE_TAGNAME)
     if tag1.nil?
       @rally.create(:tag, {"Name" => USE_TAGNAME})
@@ -83,7 +82,7 @@ describe "Rally API specific artifact tests" do
         #       allowed values for Defect ScheduleState
 
         # Setup
-        @conf = YAML.load_file('spec/support/configs/non_default_workspace_config.yml')
+        @conf = YAML.load_file('spec/support/configs/APIconfig_nondefaultws.yml')
         # Connect to default workspace
         d_config =
           { :base_url   =>  @conf['RallyURL'] + '/slm',

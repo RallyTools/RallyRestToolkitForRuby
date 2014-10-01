@@ -1,10 +1,9 @@
 require_relative "spec_helper"
 
-
 describe "Rally Json Create Tests" do
 
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
   end
 
   def setup_test_defect(fields = {})
@@ -38,8 +37,10 @@ describe "Rally Json Create Tests" do
   end
   
   it "should create with a web link field" do
-    weblink_field_name = RallyAPISpecHelper::EXTRA_SETUP[:weblink_field_name]
-    if !weblink_field_name.nil?
+    weblink_field_name = load_api_config_extras[:weblink_field_name]
+    if weblink_field_name.nil?
+      puts "Skipping test: WebLinkFieldName not present in config"
+    else
       obj = {}
       obj["Name"] = "Test with a weblink"
       obj[weblink_field_name] = {

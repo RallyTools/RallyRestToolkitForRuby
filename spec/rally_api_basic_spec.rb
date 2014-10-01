@@ -1,11 +1,9 @@
 require_relative "spec_helper"
 
-
 describe "Rally Json API" do
 
-  before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
-  end
+  before(:all)       { @rally = RallyAPI::RallyRestJson.new(load_api_config) }
+  let(:rally_config) { load_api_config }
 
   it "should connect to Rally" do
     expect(@rally.user.UserName).not_to be_nil
@@ -34,7 +32,6 @@ describe "Rally Json API" do
   end
 
   it "should take a logger on create" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
     expect(my_logger).to receive(:debug).at_least(:twice)
     rally_config[:logger] = my_logger
@@ -43,7 +40,6 @@ describe "Rally Json API" do
   end
 
   it "should turn off logger" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
     expect(my_logger).not_to receive(:debug)
     rally_config[:logger] = my_logger
@@ -52,7 +48,6 @@ describe "Rally Json API" do
   end
 
   it "should turn on logger discretely" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     my_logger = double("logger", :<< => nil)
     expect(my_logger).to receive(:debug).exactly(2).times
     rally_config[:logger] = my_logger
@@ -77,7 +72,6 @@ describe "Rally Json API" do
   end
 
   it "should set the proxy info correctly" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     proxy_setup = "http://puser:ppass@someproxy:3128"
     rally_config[:proxy] = proxy_setup
     error_msg = /RallyAPI: - rescued exception - getaddrinfo: .*(name|Name).* not known \(http:\/\/someproxy:3128\) on request to/
@@ -85,13 +79,11 @@ describe "Rally Json API" do
   end
 
   it "should throw a reasonable exception for a 404 URL" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:base_url] = "https://trial.rallydev.com/slm/slm"
     expect{RallyAPI::RallyRestJson.new(rally_config)}.to raise_error(StandardError, /RallyAPI - HTTP-302/)
   end
 
   it "should throw a reasonable exception for a bad password or username" do
-    rally_config = RallyAPISpecHelper::TEST_SETUP.clone
     rally_config[:api_key] = nil
     rally_config[:password] = "asdf"
     expect{RallyAPI::RallyRestJson.new(rally_config)}.to raise_error(StandardError, /RallyAPI - HTTP-401/)

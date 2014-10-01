@@ -1,13 +1,12 @@
 require_relative "spec_helper"
 
-
 describe "Rally API Key Auth" do
 #TODO: Use RSpec configuration (in spec helper) to only run tests if
 #      config_file is present, and config file includes an API key,
 #      username, and password
 
-  let(:config_file)      { "RallyAPIcredentials_PROD.txt" }
-  let(:rally_config)     { load_api_config(config_file).test_setup }
+  let(:config_file)      { "APIconfig_rally1.txt" }
+  let(:rally_config)     { load_api_config(config_file) }
   let(:rally_connection) { RallyAPI::RallyRestJson.new(rally_config) }
   let(:first_defect)     { retrieve_first_defect(rally_connection) }
 

@@ -1,12 +1,11 @@
 require_relative "spec_helper"
 
-
 describe "Rally Json Read Tests" do
 
   #Side note - trying to keep things from getting too cluttered
   # hence the before all instead of before each
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
     fields = {"Name" => "rally_api tests - Defect #{Time.now}", "Owner" => @rally.user}
     @test_defect = @rally.create(:defect, fields)
   end

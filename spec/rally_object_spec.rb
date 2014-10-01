@@ -1,6 +1,5 @@
 require_relative "spec_helper"
 
-
 describe "Rally Json Object Tests" do
 
   JSON_TEST_OBJECT = { "Name" => "Test Name", "Severity" => "High", "_type" => "defect", "ScheduleState" => "In-Progress"}

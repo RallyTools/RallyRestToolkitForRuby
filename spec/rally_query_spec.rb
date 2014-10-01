@@ -1,11 +1,10 @@
 require_relative "spec_helper"
 
-
 describe "Rally Query Tests" do
 
   #setup 3 defects and stories for the tests below
   before :all do
-    @rally = RallyAPI::RallyRestJson.new(RallyAPISpecHelper::TEST_SETUP)
+    @rally = RallyAPI::RallyRestJson.new(load_api_config)
 
     @base_name = "rally_api Test - #{Time.now}"
     story_fields  = {:Name => "#{@base_name.to_s} - #{rand()}", :Description => "Test for rally_api"}
