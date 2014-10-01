@@ -18,11 +18,12 @@ Gem::Specification.new do |s|
   s.has_rdoc         = false
 
   s.add_dependency('httpclient', '~> 2.3.0')
-  s.add_development_dependency('simplecov')
+  s.add_development_dependency('simplecov', '~> 0.9.0')
   s.add_development_dependency('rspec', '~> 2.9')
   s.add_development_dependency('rake')
   s.add_development_dependency('cucumber')
   s.add_development_dependency('aruba')
+  s.add_development_dependency('pry')
 
   #s.files         = `git ls-files`.split("\n")
   s.files = %w(README.md Rakefile) + Dir.glob("{lib}/**/*.rb").delete_if { |item| item.include?(".svn") }
