@@ -151,3 +151,6 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
       of allowed values from a user's non-default workspace. Updates gem development dependencies and 
       test files structure.
 
+    Version 1.1.1 (October 2014) - Relax version requirement of httpclient runtime 
+      dependency to '>= 2.3.0'.
+
