@@ -154,3 +154,5 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
     Version 1.1.1 (October 2014) - Relax version requirement of httpclient runtime 
       dependency to '>= 2.3.0'.
 
+    Version 1.1.2 (October 2014) - Change version requirement of httpclient runtime 
+      dependency to '~> 2.4.0'.
