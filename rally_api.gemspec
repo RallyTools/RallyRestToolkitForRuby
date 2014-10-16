@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
 
   s.has_rdoc = false
 
-  s.add_dependency('httpclient', '>= 2.3.0')
+  s.add_dependency('httpclient', '~> 2.4.0')
   s.add_development_dependency('simplecov', '0.9.1')
   s.add_development_dependency('rspec', '3.1.0')
   s.add_development_dependency('rake', '10.3.2')
