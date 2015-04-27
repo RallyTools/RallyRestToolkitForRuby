@@ -6,9 +6,9 @@ describe "Rally API specific artifact tests" do
 
   def find_tag(tagname)
     tg_query = RallyAPI::RallyQuery.new()
-    tg_query.type = :tag
+    tg_query.type  = :tag
     tg_query.query_string = "(Name = \"#{tagname}\")"
-    tg_query.limit=20
+    tg_query.limit = 20
 
     tg_result = @rally.find(tg_query)
     tg_result.first
@@ -54,59 +54,54 @@ describe "Rally API specific artifact tests" do
   end
 
   context '#allowed_values', allowed_values: true do
-    context 'in default workspace' do
-      it 'gets allowed values' do
-        allowed_sevs = @rally.allowed_values("Defect", "Severity")
-        expect(allowed_sevs.length).to be > 2
-        allowed_states = @rally.allowed_values(:story, "ScheduleState")
-        expect(allowed_states.length).to be > 3
-        found = false
-        allowed_states.each_key do |st|
-          found = true if st == "Accepted"
-        end
-        expect(found).to be true
-        allowed_hr_states = @rally.allowed_values("HierarchicalRequirement", "ScheduleState")
-        expect(allowed_hr_states.length).to be > 3
+
+    it 'gets allowed values in the default workspace' do
+      allowed_sevs = @rally.allowed_values("Defect", "Severity")
+      expect(allowed_sevs.length).to be > 2
+      allowed_states = @rally.allowed_values(:story, "ScheduleState")
+      expect(allowed_states.length).to be > 3
+      found = false
+      allowed_states.each_key do |st|
+        found = true if st == "Accepted"
       end
+      expect(found).to be true
+      allowed_hr_states = @rally.allowed_values("HierarchicalRequirement", "ScheduleState")
+      expect(allowed_hr_states.length).to be > 3
     end
 
-    context 'in non-default workspace' do
-      let(:headers) do
-        RallyAPI::CustomHttpHeader.new( { :name => "Rally Rspec Utils", 
-                                          :version => 'v2.0', 
-                                          :vendor => "Rally" } )
-      end
+    it 'gets workspace-scoped allowed values in WSAPI v2.0' do
+      # Note: This test requires that the non-default workspace has different
+      #       allowed values for Defect ScheduleState
 
-      it 'gets workspace-scoped allowed values in WSAPI v2.0' do
-        # Note: This test requires that the non-default workspace has different
-        #       allowed values for Defect ScheduleState
+      # Setup
+      @conf = YAML.load_file('spec/support/configs/APIconfig_nondefaultws.yml')
+      hdr_info ={ name: "Rally Rspec Utils", version: 'v2.0', vendor: "Rally" }
+      headers = RallyAPI::CustomHttpHeader.new(hdr_info)
+      # Connect to default workspace
+      d_config =
+          { :base_url     =>  @conf['RallyURL'],
+            :username     =>  @conf['Username'],
+            :password     =>  @conf['Password'],
+            :workspace    =>  @conf['Default_WS'],
+            :version      => 'v2.0',
+            :headers      => headers,
+            :debug        => false }
+      d_rally = RallyAPI::RallyRestJson.new(d_config)
+      d_workspace = d_rally.find_workspace(d_config[:workspace])
 
-        # Setup
-        @conf = YAML.load_file('spec/support/configs/APIconfig_nondefaultws.yml')
-        # Connect to default workspace
-        d_config =
-          { :base_url   =>  @conf['RallyURL'] + '/slm',
-          :username     =>  @conf['Username'],
-          :password     =>  @conf['Password'],
-          :workspace    =>  @conf['Default_WS'],
-          :version      => 'v2.0',
-          :headers      => headers,
-          :debug        => false }
-        d_rally = RallyAPI::RallyRestJson.new(d_config)
-        d_workspace = d_rally.find_workspace(d_config['Workspace'])
-        # Connect to non-default workspace with unique allowed values
-        nd_config = d_config.merge(workspace: @conf['NonDefault_WS'])
-        nd_rally = RallyAPI::RallyRestJson.new(nd_config)
-        nd_workspace = nd_rally.find_workspace(nd_config['Workspace'])
+      # Connect to non-default workspace with unique allowed values
+      nd_config = d_config.merge(workspace: @conf['NonDefaultWS'])
+      nd_rally = RallyAPI::RallyRestJson.new(nd_config)
+      nd_workspace = nd_rally.find_workspace(nd_config[:workspace])
 
-        # Get allowed-values that are unique to each workspace 
-        default_ws_values = d_rally.allowed_values("Defect", "ScheduleState", d_workspace)
-        nondefault_ws_values = nd_rally.allowed_values("Defect", "ScheduleState", nd_workspace)
+      # Get allowed-values that are unique to each workspace
+         default_ws_values =  d_rally.allowed_values("Defect", "ScheduleState",  d_workspace)
+      nondefault_ws_values = nd_rally.allowed_values("Defect", "ScheduleState", nd_workspace)
 
-        # Verify this non-default workspace has different allowed values
-        expect(default_ws_values).not_to eq(nondefault_ws_values)
-      end
+      # Verify this non-default workspace has different allowed values
+      expect(default_ws_values).not_to eq(nondefault_ws_values)
     end
+
   end
 
   it "should get the field list for defect" do

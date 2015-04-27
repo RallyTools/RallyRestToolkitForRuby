@@ -1,5 +1,5 @@
 # :stopdoc:
-#Copyright (c) 2002-2012 Rally Software Development Corp. All Rights Reserved.
+#Copyright (c) 2002-2015 Rally Software Development Corp. All Rights Reserved.
 #Your use of this Software is governed by the terms and conditions
 #of the applicable Subscription Agreement between your company and
 #Rally Software Development Corp.
@@ -15,14 +15,15 @@ module RallyAPI
 
     def initialize(rally_rest, json_hash, warnings = {})
       # handle that we might not get a _ref or a _type
-      if !json_hash["_type"].nil? || !json_hash["_ref"].nil?
-        @type = json_hash["_type"] || json_hash["_ref"].split("/")[-2]
-      else
-        @type = "unknown"
-      end
+     @type = "unknown"
+     if json_hash["_type"] && !json_hash["_type"].empty?
+       @type = json_hash["_type"]
+     elsif json_hash["_ref"] && !json_hash["_ref"].empty?
+       @type = json_hash["_ref"].split("/")[-2]
+     end
       @rally_object = json_hash
-      @rally_rest = rally_rest
-      @warnings = warnings[:warnings]
+      @rally_rest   = rally_rest
+      @warnings     = warnings[:warnings]
     end
 
     def update(fields, params = {})
@@ -149,21 +150,6 @@ module RallyAPI
       end
       ret_val
     end
-
-    #def get_val(field)
-    #  return_val = rally_object[field]
-    #
-    #  if return_val.class == Hash
-    #    return RallyObject.new(@rally_rest, return_val)
-    #  end
-    #
-    #  if return_val.class == Array
-    #    make_object_array(field)
-    #    return_val = rally_object[field]
-    #  end
-    #
-    #  return_val
-    #end
 
     def get_val(field)
       return_val = @rally_object[field]

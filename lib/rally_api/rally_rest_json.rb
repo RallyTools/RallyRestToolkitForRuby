@@ -5,7 +5,7 @@
 #require "rally_query_result"
 
 # --
-#Copyright (c) 2002-2012 Rally Software Development Corp. All Rights Reserved.
+#Copyright (c) 2002-2015 Rally Software Development Corp. All Rights Reserved.
 #Your use of this Software is governed by the terms and conditions
 #of the applicable Subscription Agreement between your company and
 #Rally Software Development Corp.
@@ -44,7 +44,7 @@ module RallyAPI
 
   #Main Class to instantiate when using the tool
   class RallyRestJson
-    DEFAULT_WSAPI_VERSION = "1.43"
+    DEFAULT_WSAPI_VERSION = "v2.0"
 
     attr_accessor :rally_url, :rally_workspace_name, :rally_project_name, :wsapi_version,
                   :rally_headers, :rally_default_workspace, :rally_default_project, :low_debug, :proxy_info,
@@ -96,12 +96,13 @@ module RallyAPI
     end
 
     def send_request(url = nil, args = nil, params = {})
+      url += '.js' if @wsapi_version !~ /^v2/ && url !~ /\.js$/  # append ".js" if it is needed
       if params[:workspace].nil? && rally_workspace_object
         params[:workspace] = rally_workspace_object['_ref']
       end
       if params[:workspace]
         wksp_id = params[:workspace].match(/workspace\/(\d*)/)[1]
-        url += "?/workspace=/workspace/#{wksp_id}"
+        url += "?workspace=workspace/#{wksp_id}"
       end
       @rally_connection.send_request(url, args, params)
     end
@@ -181,14 +182,14 @@ module RallyAPI
       params[:workspace] = ws_ref
 
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
-      object2create = { type => check_fields(fields) }
+      postable_fields = check_fields(fields)
+      postable_fields = adjust_for_custom(type, postable_fields) if @wsapi_version =~ /^v2/
+      object2create = { type => postable_fields }
       args = { :method => :post, :payload => object2create }
-      #json_response = @rally_connection.create_object(make_create_url(rally_type), args, object2create)
       json_response = send_request(make_create_url(type), args, params)
       #todo - check for warnings
       RallyObject.new(self, json_response["CreateResult"]["Object"], warnings(json_response)).read()
     end
-
 
     def read(type, obj_id, params = {})
       type = check_type(type)
@@ -224,7 +225,7 @@ module RallyAPI
       pagesize = params[:pagesize] || 200
       full_collection = []
       start.step(collection_count, pagesize).each do |page_start|
-        page = reread(collection_hash, {:pagesize => 200, :startindex => page_start})
+        page = reread(collection_hash, {:pagesize => 200, :start => page_start})
         full_collection.concat(page["Results"])
       end
       {"Results" => full_collection}
@@ -234,7 +235,9 @@ module RallyAPI
       type = check_type(type)
       ref = check_id(type.to_s, obj_id)
       fields = RallyAPI::RallyRestJson.fix_case(fields) if @rally_rest_api_compat
-      json_update = {type.to_s => check_fields(fields)}
+      update_fields = check_fields(fields)
+      update_fields = adjust_for_custom(type.to_s, update_fields) if @wsapi_version =~ /^v2/
+      json_update = {type.to_s => update_fields}
       args = {:method => :post, :payload => json_update}
       json_response = send_request(ref, args, params)
       #todo check for warnings on json_response["OperationResult"]
@@ -247,8 +250,8 @@ module RallyAPI
     #test_query = RallyAPI::RallyQuery.new()
     #test_query.type = :defect
     #test_query.fetch = "Name"
-    #test_query.workspace = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/workspace/12345.js" } #optional
-    #test_query.project = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/project/12345.js" }     #optional
+    #test_query.workspace = {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/workspace/12345" } #optional
+    #test_query.project = {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/project/12345" }     #optional
     #test_query.page_size = 200       #optional - default is 200
     #test_query.limit = 1000          #optional - default is 99999
     #test_query.project_scope_up = false
@@ -279,6 +282,7 @@ module RallyAPI
       end
 
       query_url = make_query_url(@rally_url, @wsapi_version, check_type(query_obj.type.to_s))
+      query_url += '.js' if @wsapi_version !~ /^v2/
       query_params = query_obj.make_query_params
       args =  {:method => :get}
       json_response = @rally_connection.get_all_json_results(query_url, args, query_params, query_obj.limit)
@@ -290,7 +294,7 @@ module RallyAPI
     end
 
     #rankAbove=%2Fhierarchicalrequirement%2F4624552599
-    #{"hierarchicalrequirement":{"_ref":"https://rally1.rallydev.com/slm/webservice/1.27/hierarchicalrequirement/4616818613.js"}}
+    #{"hierarchicalrequirement":{"_ref":"https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement/4616818613"}}
     def rank_above(ref_to_rank, relative_ref)
       ref = ref_to_rank
       params = {}
@@ -389,28 +393,33 @@ module RallyAPI
     end
 
     def make_get_url(type)
-      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}.js"
+      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}"
     end
 
     def security_url
-      "#{@rally_url}/webservice/#{@wsapi_version}/security/authorize.js"
+      "#{@rally_url}/webservice/#{@wsapi_version}/security/authorize"
     end
 
     def make_read_url(type,oid)
-      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/#{oid}.js"
+      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/#{oid}"
     end
 
     def make_create_url(type)
-      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/create.js"
+      "#{@rally_url}/webservice/#{@wsapi_version}/#{type}/create"
     end
 
     def make_query_url(rally_url, wsapi_version, type)
-      "#{rally_url}/webservice/#{wsapi_version}/#{type}.js"
+      "#{rally_url}/webservice/#{wsapi_version}/#{type}"
     end
 
     def short_ref(long_ref)
-      ref_pieces = long_ref.split("/")
-      "/#{ref_pieces[-2]}/#{ref_pieces[-1].split(".js")[0]}"
+      if @wsapi_version =~ /^v2/
+        path_components = long_ref.split("/")
+        path_components[-2..-1].join("/")
+      else
+        ref_pieces = long_ref.split("/")
+        "/#{ref_pieces[-2]}/#{ref_pieces[-1].split(".js")[0]}"
+      end
     end
 
     def warnings(json_obj)
@@ -425,12 +434,16 @@ module RallyAPI
       return type_name
     end
 
-    #ref should be like https://rally1.rallydev.com/slm/webservice/1.25/defect/12345.js
+    #ref should be like https://rally1.rallydev.com/slm/webservice/v2.0/defect/12345
     def has_ref?(json_object)
       if json_object["_ref"].nil?
         return false
       end
-      return true if json_object["_ref"] =~ /^https:\/\/\S*(\/slm\/webservice)\S*.js$/
+      if @wsapi_version =~ /^v2/
+        return true if json_object["_ref"] =~ /^https:\/\/\S*(\/slm\/webservice)\S*$/
+      else
+        return true if json_object["_ref"] =~ /^https:\/\/\S*(\/slm\/webservice)\S*.js$/
+      end
       false
     end
 
@@ -460,7 +473,7 @@ module RallyAPI
       nil
     end
 
-    #eg https://rally1.rallydev.com/slm/webservice/1.25/defect/12345.js
+    #eg https://rally1.rallydev.com/slm/webservice/v2.0/defect/12345
     def get_type_from_ref(ref)
       ref.split("/")[-2]
     end
@@ -468,6 +481,7 @@ module RallyAPI
     def check_fields(fields)
       fields.each do |key, val|
         fields[key] = make_ref_field(val)
+
         if val.class == Time
           fields[key] = val.iso8601
         end
@@ -491,6 +505,25 @@ module RallyAPI
       end
 
       val
+    end
+
+    def adjust_for_custom(type, fields)
+      # only needed for when using WSAPI v2.x or later, custom fields must be prefixed with 'c_'
+      begin
+        type_custom_fields = custom_fields_for(type)
+      rescue => ex
+        return fields
+      end
+      transform = {}
+      fields.each do |name, value|
+        is_custom = type_custom_fields.select {|fn| fn.downcase == name.downcase}
+        if is_custom.length > 0
+          transform[is_custom.first.last] = value
+        else
+          transform[name] = value
+        end
+      end
+      transform
     end
 
     def self.fix_case(values)
