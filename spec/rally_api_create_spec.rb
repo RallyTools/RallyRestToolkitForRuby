@@ -43,9 +43,7 @@ describe "Rally Json Create Tests" do
     else
       obj = {}
       obj["Name"] = "Test with a weblink"
-      obj[weblink_field_name] = {
-        "LinkID"=>"123", "DisplayString"=>"The Label"
-      }
+      obj[weblink_field_name] = { "LinkID"=>"123", "DisplayString"=>"The Label" }
       new_de = @rally.create(:defect, setup_test_defect(obj))
       expect(new_de.Name).to eq(obj["Name"])
       expect(new_de[weblink_field_name]["LinkID"]).to eq("123")

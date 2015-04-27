@@ -50,8 +50,10 @@ describe "Rally Json Read Tests" do
       q.order = "Rank FooBar"
     end
     # TODO: Update to ensure an appropriate warning is generated in WSAPI 2.0
-    expect(defects.warnings.first).to match(/Please update your client to use the latest version of the API/)
-    expect(defects.warnings.length).to eq(1)
+    if @rally.wsapi_version != 'v2.0'
+      expect(defects.warnings.first).to match(/Please update your client to use the latest version of the API/)
+      expect(defects.warnings.length).to eq(1)
+    end
   end
 
   it "should conduct a find with an invalid order" do
@@ -69,8 +71,10 @@ describe "Rally Json Read Tests" do
       q.order = ""
     end
     # TODO: Update to ensure an appropriate warning is generated in WSAPI 2.0
-    expect(defects.warnings.first).to match(/Please update your client to use the latest version of the API/)
-    expect(defects.warnings.length).to eq(1)
+    if @rally.wsapi_version != 'v2.0'
+      expect(defects.warnings.first).to match(/Please update your client to use the latest version of the API/)
+      expect(defects.warnings.length).to eq(1)
+    end
     # Warning: No sort criteria has been defined.  The sort order will be unpredictable.
     # Between 10/10 and 10/21
   end

@@ -1,6 +1,6 @@
 ## License
 
-Copyright (c) Rally Software Development Corp. 2013 Distributed under the MIT License.
+Copyright (c) Rally Software Development Corp. 2015 Distributed under the MIT License.
 
 ## Warranty
 
@@ -16,7 +16,7 @@ RallyAPI (rally_api) -- a wrapper for Rally's REST Web Services API
 
 [![Stories in Ready](http://badge.waffle.io/RallyTools/RallyRestToolkitForRuby.png)](http://waffle.io/RallyTools/RallyRestToolkitForRuby)
 
-RallyAPI is a wrapper of Rally's Web Service API Json endpoints using rest-client and native json parsing
+RallyAPI is a wrapper of Rally's Web Service API JSON endpoints using rest-client and native json parsing
 Check the examples directory for more detailed samples.
 
 ### Installation
@@ -70,8 +70,8 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
     test_query = RallyAPI::RallyQuery.new()
     test_query.type = "defect"
     test_query.fetch = "Name"
-    test_query.workspace = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/workspace/12345.js" } #optional
-    test_query.project = {"_ref" => "https://rally1.rallydev.com/slm/webservice/1.25/project/12345.js" }     #optional
+    test_query.workspace = {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/workspace/12345" } #optional
+    test_query.project = {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/project/12345" }     #optional
     test_query.page_size = 200       #optional - default is 200
     test_query.limit = 1000          #optional - default is 99999
     test_query.project_scope_up = false
@@ -114,8 +114,8 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
     #If you query with a specific fetch string, for example query defect and fetch Name,Severity,Description
     #You will *only* get back those fields defect.Priority will be nil, but may not be null in Rally
     #Use object.read or @rally.read to make sure you read the whole object if you want what is in Rally
-    #  This is done for speed - lazy loading (going back to get a value from Rally) can be unneccessarily slow
-    #  *Pick you fetch strings wisely* fetch everything you need and don't rely on read if you don't need it the speed is worth it.
+    #  This is done for speed - lazy loading (going back to get a value from Rally) can be unnecessarily slow
+    #  *Pick your fetch strings wisely* fetch everything you need and don't rely on read if you don't need it, the speed is worth it.
 
 ### Creating an Artifact
     obj = {}
@@ -147,12 +147,16 @@ A Rally API Key can be used for user authentication. If an API Key is provided, 
     story1.rank_to_top
 
 ### Revision History
+
+    Version 1.2.0 (April 2015) - set default WSAPI version to 2.0, fix paging issue in reread,
+      can now use DisplayName for custom fields in create and update operations.
+      Set httpclient gem runtime dependency to '= 2.5.0'.
+
+    Version 1.1.2 (October 2014) - Set httpclient gem runtime dependency to '~> 2.4.0'.
+
+    Version 1.1.1 (October 2014) - Relax httpclient gem runtime dependency to '>= 2.3.0'.
+
     Version 1.1.0 (September 2014) - Appends workspace to Rally API requests to enable correct retrieval
       of allowed values from a user's non-default workspace. Updates gem development dependencies and 
       test files structure.
 
-    Version 1.1.1 (October 2014) - Relax version requirement of httpclient runtime 
-      dependency to '>= 2.3.0'.
-
-    Version 1.1.2 (October 2014) - Change version requirement of httpclient runtime 
-      dependency to '~> 2.4.0'.
