@@ -155,7 +155,8 @@ describe "Rally Query Tests" do
 
   #note -this test assumes a workspace with more than 10 defects
   it "find should work with small limits and pagesize" do
-    qh = {:type => "defect", :fetch => "Name", :page_size => 5, :limit => 10 }
+    #qh = {:type => "defect", :fetch => "Name", :page_size => 5, :limit => 10 }
+    qh = {:type => "defect", :fetch => "Name", :pagesize => 4, :limit => 10 }
     test_query = RallyAPI::RallyQuery.new(qh)
     query_result = @rally.find(test_query)
     #query_result.each_with_index { |de, ind| puts "#{ind} - #{de["Name"]}"}
