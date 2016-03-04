@@ -34,8 +34,8 @@ module RallyAPI
       parse_query_hash(query_hash) if !query_hash.nil?
       @page_size          = 200 if @page_size.nil?
       @limit              = 99999 if @limit.nil?
-      @project_scope_up   = false if @project_scope_up.nil?
-      @project_scope_down = false if @project_scope_down.nil?
+      @project_scope_up   = true if @project_scope_up.nil?
+      @project_scope_down = true if @project_scope_down.nil?
       @page_size = @limit if @page_size > @limit
       self
     end
