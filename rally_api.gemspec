@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
   s.has_rdoc = false
 
-  s.add_dependency('httpclient', '2.6.0.1')
+  s.add_dependency('httpclient', '>=2.6.0.1')
 
   s.add_development_dependency('bundler',     '1.5.1')
   s.add_development_dependency('rake',        '10.3.2')
