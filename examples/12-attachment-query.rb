@@ -1,7 +1,6 @@
 #! /usr/bin/env ruby
 
 require 'rally_api'
-require 'pp'
 
 #Configuration for rally connection specified in 00-config.rb
 require_relative '00-config'
