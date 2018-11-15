@@ -50,6 +50,7 @@ module RallyAPI
       query_params[:projectScopeDown] = @project_scope_down   unless @project_scope_down.nil?
       query_params[:order]            = @order                unless @order.nil?
       query_params[:pagesize]         = @page_size            unless @page_size.nil?
+      query_params[:limit]            = @limit                unless @limit.nil?
       query_params[:search]           = @search               unless @search.nil?
       query_params[:types]            = @types                unless @types.nil?
 
@@ -128,6 +129,9 @@ module RallyAPI
       @project_scope_down = query_hash[:project_scope_down]
       @project_scope_up   = query_hash[:project_scope_up]
       @order              = query_hash[:order]
+      if !query_hash[:pagesize].nil? && query_hash[:page_size].nil?
+        query_hash[:page_size] = query_hash[:pagesize]
+      end
       @page_size          = query_hash[:page_size]
       @limit              = query_hash[:limit]
       @workspace          = query_hash[:workspace]
