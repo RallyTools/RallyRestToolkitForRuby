@@ -7,12 +7,15 @@ headers.version = "Version client software"
 
 # Config parameters
 @config = {}
-@config[:base_url]  = "https://trial.rallydev.com/slm"    # This is the default setting.
+@config[:base_url]  = "https://trial.rallydev.com/slm"
 @config[:username]  = "user@company.com"
 @config[:password]  = "password"
+@config[:api_key]   = "_Rd3...................................t8EU" # if present; this overrides un/pw
 @config[:workspace] = "Workspace"
 @config[:project]   = "Project"
-@config[:version]   = "1.42"        # If not set, will use default version defined in gem.
+@config[:version]   = "v2.0"
 @config[:headers]   = headers
 
-require_relative 'MyVars.rb'
+if FileTest.exist?( './MyVars.rb' )
+    require './MyVars.rb'
+end
