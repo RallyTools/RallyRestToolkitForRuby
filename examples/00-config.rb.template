@@ -15,3 +15,4 @@ headers.version = "Version client software"
 @config[:version]   = "1.42"        # If not set, will use default version defined in gem.
 @config[:headers]   = headers
 
+require 'MyVars.rb'
